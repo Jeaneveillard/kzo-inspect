@@ -8085,8 +8085,10 @@ ${answerLocally(q, ctx)}`;
           insertBtn.addEventListener('click', () => {
             try {
               const inspection = _nmInspection || getInspection(route.id);
+              console.log('[NM] inspection:', !!inspection, '| si:', _nmSi, 'sub:', _nmSub, 'ii:', _nmIi);
               if (inspection) {
                 const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
+                console.log('[NM] item trouvé:', !!item);
                 if (item) {
                   const existing = (item.inspectorComment || '').trim();
                   item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
