@@ -410,7 +410,7 @@ export const PROFESSIONAL_NARRATIVES = [
     sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
     status: 'non-conforme',
     title: 'Entrée de service électrique non conforme',
-    text: "L'entrée de service électrique présente des défaillances notables, notamment une mastite détériorée, une entrée de câble non étanchéifiée ou une tuyauterie de service endommagée. Ces conditions peuvent permettre l'infiltration d'eau dans le panneau électrique et créer des risques d'arc électrique. Une mise en conformité par un électricien licencié est requise sans délai.",
+    text: "L'entrée de service électrique présente des défaillances notables, notamment une entrée de câble non étanchéifiée, une gaine isolante détériorée ou une tuyauterie de service endommagée. Ces conditions peuvent permettre l'infiltration d'eau dans le panneau électrique et créer des risques d'arc électrique. Une mise en conformité par un électricien licencié est requise sans délai.",
   },
   {
     id: 'pn-elec-ext-nc-luminaire-ext-defaillant',
@@ -438,7 +438,7 @@ export const PROFESSIONAL_NARRATIVES = [
     sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
     status: 'a-corriger',
     title: 'Coffret extérieur à inspecter par électricien',
-    text: "Le coffret électrique extérieur présente des signes d'usure ou de corrosion qui justifient une inspection approfondie par un électricien qualifié. Une vérification de l'étanchéité et de l'état des composants internes est recommandée afin de prévenir toute défaillance.",
+    text: "Le coffret électrique extérieur présente des signes d'usure ou de corrosion qui justifient une inspection approfondie par un électricien qualifié. Une défaillance du coffret peut entraîner une coupure de courant, un arc électrique ou une infiltration d'eau sur les composants, aggravant les risques de court-circuit. Une vérification de l'étanchéité et de l'état des composants internes est recommandée afin de prévenir toute défaillance.",
   },
   {
     id: 'pn-elec-ext-c-1',
@@ -992,7 +992,7 @@ export const PROFESSIONAL_NARRATIVES = [
     sectionIds: ['aibq-matieres-dan', 'bnq-matieres-dan'],
     status: 'conforme',
     title: 'Aucun matériau dangereux identifié — limites d\'inspection',
-    text: "Aucun matériau dangeureux évident n'a été identifié lors de l'inspection visuelle dans les zones accessibles. Cette évaluation se limite à ce qui est observable à l'oeil nu et ne remplace pas une analyse en laboratoire. Pour un bâtiment de plus de 30 ans, des tests spécifiques peuvent être envisagés si des travaux de rénovation sont planifiés.",
+    text: "Aucun matériau dangereux évident n'a été identifié lors de l'inspection visuelle dans les zones accessibles. Cette évaluation se limite à ce qui est observable à l'oeil nu et ne remplace pas une analyse en laboratoire. Pour un bâtiment de plus de 30 ans, des tests spécifiques peuvent être envisagés si des travaux de rénovation sont planifiés.",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
