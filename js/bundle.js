@@ -8083,19 +8083,24 @@ ${answerLocally(q, ctx)}`;
         const expandBtn = card.querySelector('.nm-expand');
         if (insertBtn) {
           insertBtn.addEventListener('click', () => {
-            const inspection = _nmInspection || getInspection(route.id);
-            if (inspection) {
-              const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
-              if (item) {
-                const existing = (item.inspectorComment || '').trim();
-                item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
-                const panel = document.getElementById('inspect-panel');
-                const ta = panel && panel.querySelector('[data-inspector-comment][data-si="' + _nmSi + '"][data-sub="' + _nmSub + '"][data-ii="' + _nmIi + '"]');
-                if (ta) ta.value = item.inspectorComment;
-                scheduleAutosave(inspection, 'checklist', panel);
+            try {
+              const inspection = _nmInspection || getInspection(route.id);
+              if (inspection) {
+                const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
+                if (item) {
+                  const existing = (item.inspectorComment || '').trim();
+                  item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
+                  const panel = document.getElementById('inspect-panel');
+                  const ta = panel && panel.querySelector('[data-inspector-comment][data-si="' + _nmSi + '"][data-sub="' + _nmSub + '"][data-ii="' + _nmIi + '"]');
+                  if (ta) ta.value = item.inspectorComment;
+                  scheduleAutosave(inspection, 'checklist', panel);
+                }
               }
+            } catch(err) {
+              console.error('[Narratifs] Erreur insertion:', err);
             }
-            document.getElementById('narratives-modal').close();
+            const modal = document.getElementById('narratives-modal');
+            if (modal && modal.open) modal.close();
           });
         }
         if (expandBtn) {
