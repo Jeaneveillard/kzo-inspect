@@ -1649,3 +1649,84 @@ dialog#narratives-modal::backdrop {
   font-size: 0.875rem;
   padding: 2rem 0;
 }
+
+/* ── Sommaire des Réparations — modale ─────────────────────────── */
+dialog#repairs-modal {
+  border: none;
+  border-radius: var(--radius, 0.75rem);
+  box-shadow: var(--shadow, 0 8px 32px rgba(0,0,0,.18));
+  padding: 0;
+  width: min(680px, 95vw);
+  max-height: 82vh;
+  overflow: hidden;
+  background: var(--surface, #fff);
+}
+dialog#repairs-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+dialog#repairs-modal::backdrop {
+  background: rgba(0,0,0,.45);
+}
+.rm-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  flex-shrink: 0;
+}
+.rm-header__title { font-weight: 700; font-size: 1rem; flex: 1; }
+.rm-header__count { font-size: 0.78rem; color: var(--text-muted, #64748b); }
+.rm-close {
+  background: none; border: none; font-size: 1.25rem;
+  cursor: pointer; padding: 0.25rem 0.5rem;
+  border-radius: 4px; color: var(--text-muted, #64748b);
+}
+.rm-close:hover { background: var(--border, #e2e8f0); }
+.rm-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.rm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius, 0.5rem);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.rm-item:hover { background: var(--border, #f1f5f9); }
+.rm-item__check { flex-shrink: 0; margin-top: 0.15rem; accent-color: var(--qc-blue, #1d4ed8); }
+.rm-item__body { display: flex; flex-direction: column; gap: 0.15rem; }
+.rm-item__badge {
+  font-size: 0.72rem; font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+  width: fit-content;
+}
+.rm-item__badge--critique { background: #fee2e2; color: #991b1b; }
+.rm-item__badge--majeur   { background: #ffedd5; color: #9a3412; }
+.rm-item__badge--mineur   { background: #fef9c3; color: #854d0e; }
+.rm-item__badge--none     { background: var(--border, #e2e8f0); color: var(--text-muted, #64748b); }
+.rm-item__section { font-size: 0.75rem; color: var(--text-muted, #64748b); }
+.rm-item__label   { font-size: 0.82rem; }
+.rm-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border, #e2e8f0);
+  flex-shrink: 0;
+}
+.rm-empty {
+  text-align: center;
+  color: var(--text-muted, #64748b);
+  font-size: 0.875rem;
+  padding: 2rem 0;
+}
