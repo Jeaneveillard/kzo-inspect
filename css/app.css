@@ -1725,7 +1725,7 @@ dialog#repairs-modal::backdrop {
 .rm-item__badge--majeur   { background: #ffedd5; color: #9a3412; }
 .rm-item__badge--mineur   { background: #fef9c3; color: #854d0e; }
 .rm-item__badge--none     { background: var(--border, #e2e8f0); color: var(--text-muted, #64748b); }
-.rm-item__section { font-size: 0.75rem; color: var(--text-muted, #64748b); }
+.rm-item__section { font-size: 0.9rem; color: var(--text, #1a1a2e); font-weight: 700; }
 .rm-item__label   { font-size: 0.82rem; }
 .rm-footer {
   display: flex;
