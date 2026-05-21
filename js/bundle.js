@@ -1951,12 +1951,38 @@
 
   // js/backup.js
   var EXPORT_VERSION = 1;
+  var SAFE_PROFILE_KEYS = [
+    "inspectorName", "inspectorTitle", "inspectorCert", "inspectorPhone",
+    "inspectorEmail", "inspectorAddress", "inspectorCity", "inspectorProvince",
+    "inspectorPostal", "firmName", "firmPhone", "firmEmail", "firmAddress",
+    "brandingLogoDataUrl", "signatureDataUrl", "coverPhotoDataUrl",
+    "reportHeaderColor", "reportFooterText", "language", "currency",
+    "taxRate", "defaultTemplate", "aiUseCloud", "aiModel", "aiProvider",
+    "aiApiKey", "googleClientId", "sheetsWebhookUrl"
+  ];
+  function isValidDataUrl(value) {
+    if (!value) return true;
+    return /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(value);
+  }
+  function sanitizeInspection(ins) {
+    if (!ins || typeof ins !== "object") return ins;
+    const urlFields = ["signatureDataUrl", "coverPhotoDataUrl", "heroPhotoUrl"];
+    for (const field of urlFields) {
+      if (ins[field] && !isValidDataUrl(ins[field])) {
+        console.warn(`[Security] ${field} invalide dans inspection ${ins.id} — ignor\xE9`);
+        ins[field] = "";
+      }
+    }
+    return ins;
+  }
   function exportAllData() {
+    const safeProfile2 = { ...loadProfile() };
+    delete safeProfile2.aiApiKey;
     const payload = {
       version: EXPORT_VERSION,
       exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
       app: "KZO Inspect",
-      profile: loadProfile(),
+      profile: safeProfile2,
       inspections: loadInspections()
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -1972,6 +1998,9 @@
   function exportInspectionBackup(inspection, profile) {
     if (!inspection?.id) return;
     profile = profile || loadProfile();
+    // Fix I-4 : exclure aiApiKey du profil export\u00e9
+    const safeProfile3 = { ...profile };
+    delete safeProfile3.aiApiKey;
     const stamp = (/* @__PURE__ */ new Date()).toISOString().replace(/[:.]/g, "-").slice(0, 19);
     const clientSlug = (inspection.site?.client || "sans-client")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -1985,7 +2014,7 @@
       exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
       app: "KZO Inspect",
       type: "inspection-backup",
-      profile,
+      profile: safeProfile3,
       inspections: [inspection]
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -2002,15 +2031,33 @@
     if (!data.inspections || !Array.isArray(data.inspections)) {
       throw new Error("Fichier invalide : inspections manquantes.");
     }
+    // Fix C-6 : validation du profil importé — liste blanche + data URLs
     if (data.profile && typeof data.profile === "object") {
-      saveProfile(data.profile);
+      const safeProfile4 = {};
+      for (const key of SAFE_PROFILE_KEYS) {
+        if (key in data.profile) safeProfile4[key] = data.profile[key];
+      }
+      const profileUrlFields = ["brandingLogoDataUrl", "signatureDataUrl", "coverPhotoDataUrl"];
+      for (const field of profileUrlFields) {
+        if (safeProfile4[field] && !isValidDataUrl(safeProfile4[field])) {
+          console.warn(`[Security] Champ profil ${field} invalide ignor\xE9 \xE0 l'import`);
+          delete safeProfile4[field];
+        }
+      }
+      if (!safeProfile4.aiApiKey) {
+        const currentProfile2 = loadProfile();
+        if (currentProfile2.aiApiKey) safeProfile4.aiApiKey = currentProfile2.aiApiKey;
+      }
+      saveProfile(safeProfile4);
     }
+    // Fix C-6 : valider les data URLs dans chaque inspection importée
+    const sanitizedInspections = data.inspections.map(sanitizeInspection);
     if (replace) {
-      saveInspections(data.inspections);
+      saveInspections(sanitizedInspections);
     } else {
       const existing = loadInspections();
       const byId = new Map(existing.map((i) => [i.id, i]));
-      for (const ins of data.inspections) {
+      for (const ins of sanitizedInspections) {
         if (ins?.id) byId.set(ins.id, ins);
       }
       saveInspections([...byId.values()]);
