@@ -355,6 +355,11 @@ function sectionListRows(i, activeSi) {
         .filter(Boolean)
         .join(' · ');
       const active = activeSi === si ? ' section-list__item--active' : '';
+      const stateIcon = state === 'done'
+        ? `<span class="section-list__icon section-list__icon--done" aria-label="Complète">✓</span>`
+        : state === 'warn'
+        ? `<span class="section-list__icon section-list__icon--warn" aria-label="Défauts">●</span>`
+        : '';
       return `
         <li class="section-list__item section-list__item--${state}${active}">
           <button type="button" class="section-list__btn ${activeSi === si ? 'section-list__btn--active' : ''}" data-open-section="${si}" aria-current="${activeSi === si ? 'true' : 'false'}">
@@ -362,6 +367,7 @@ function sectionListRows(i, activeSi) {
             <span class="section-list__body">
               <span class="section-list__title">${escapeHtml(stripNumbering(sec.title))}</span>
             </span>
+            ${stateIcon}
           </button>
         </li>`;
     })

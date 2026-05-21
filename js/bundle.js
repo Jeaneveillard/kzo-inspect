@@ -4319,6 +4319,11 @@ ${answerLocally(q, ctx)}`;
         st.nc ? `${st.nc} NC` : ""
       ].filter(Boolean).join(" \xB7 ");
       const active = activeSi === si ? " section-list__item--active" : "";
+      const stateIcon = state === "done"
+        ? `<span class="section-list__icon section-list__icon--done" aria-label="Compl\xE8te">✓</span>`
+        : state === "warn"
+        ? `<span class="section-list__icon section-list__icon--warn" aria-label="D\xE9fauts">●</span>`
+        : "";
       return `
         <li class="section-list__item section-list__item--${state}${active}">
           <button type="button" class="section-list__btn ${activeSi === si ? "section-list__btn--active" : ""}" data-open-section="${si}" aria-current="${activeSi === si ? "true" : "false"}">
@@ -4326,6 +4331,7 @@ ${answerLocally(q, ctx)}`;
             <span class="section-list__body">
               <span class="section-list__title">${escapeHtml2(stripNumbering(sec.title))}</span>
             </span>
+            ${stateIcon}
           </button>
         </li>`;
     }).join("");
