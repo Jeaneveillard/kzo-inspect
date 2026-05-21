@@ -7900,6 +7900,9 @@ ${answerLocally(q, ctx)}`;
         </label>
         <label>Cl\xE9 API secr\xE8te
           <input class="input" type="password" name="aiApiKey" value="${escapeAttr(p.aiApiKey || "")}" placeholder="ex: sk-..." autocomplete="off" />
+          <p class="input-hint input-hint--warn" style="font-size:0.78rem;color:#c62828;margin-top:4px;">
+            &#x26A0; Votre cl\xE9 API est stock\xE9e localement. Ne partagez jamais votre fichier de sauvegarde.
+          </p>
         </label>
         ${aiModelSelectMarkup(p.aiModel, p.aiProvider, escapeAttr, escapeHtml9)}
       </fieldset>
@@ -8321,7 +8324,8 @@ ${answerLocally(q, ctx)}`;
           ? item.presets[0]
           : item.comment.substring(0, 70) + (item.comment.length > 70 ? "…" : "");
         const text = formatRepairItem(item);
-        return '<label class="rm-item"><input type="checkbox" class="rm-item__check" checked data-rm-text="' + rmEscHtml(text) + '" /><div class="rm-item__body"><span class="rm-item__badge rm-item__badge--' + (item.priority || "none") + '">' + emoji + " " + statusLabel + " - " + priorityLabel + '</span><span class="rm-item__section">' + rmEscHtml(item.sectionTitle) + '</span><span class="rm-item__label">' + rmEscHtml(labelClean) + " : " + rmEscHtml(preview) + "</span></div></label>";
+        const safePriority = ['critique','majeur','mineur'].includes(item.priority) ? item.priority : 'none';
+        return '<label class="rm-item"><input type="checkbox" class="rm-item__check" checked data-rm-text="' + rmEscHtml(text) + '" /><div class="rm-item__body"><span class="rm-item__badge rm-item__badge--' + safePriority + '">' + emoji + " " + statusLabel + " - " + priorityLabel + '</span><span class="rm-item__section">' + rmEscHtml(item.sectionTitle) + '</span><span class="rm-item__label">' + rmEscHtml(labelClean) + " : " + rmEscHtml(preview) + "</span></div></label>";
       }).join("");
       dlg.showModal();
     };

@@ -1856,6 +1856,9 @@ function renderProfile() {
         </label>
         <label>Clé API secrète
           <input class="input" type="password" name="aiApiKey" value="${escapeAttr(p.aiApiKey || '')}" placeholder="ex: sk-..." autocomplete="off" />
+          <p class="input-hint input-hint--warn" style="font-size:0.78rem;color:#c62828;margin-top:4px;">
+            &#x26A0; Votre clé API est stockée localement. Ne partagez jamais votre fichier de sauvegarde.
+          </p>
         </label>
         ${aiModelSelectMarkup(p.aiModel, p.aiProvider, escapeAttr, escapeHtml)}
       </fieldset>
