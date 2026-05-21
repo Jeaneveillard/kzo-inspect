@@ -39,6 +39,7 @@ import {
 import { renderChecklistTabContent } from './checklist-views.js';
 import { openReport } from './report.js';
 import { PROFESSIONAL_NARRATIVES, getNarratives } from './professional-narratives.js';
+import { initRepairsModal } from './repairs-summary.js';
 import { openThankYouLetter } from './thank-you-letter.js';
 import {
   openReceipt,
@@ -188,12 +189,16 @@ function renderNav() {
     }
   }
 
+  const repairsBtn = (route.name === 'inspect' && route.id)
+    ? `<button type="button" class="btn btn--ghost btn--sm top-nav__repairs" id="nav-repairs-btn">🔧 Réparations</button>`
+    : '';
+
   nav.innerHTML = items
     .map(
       (i) =>
         `<a href="#${i.hash}" class="top-nav__link ${route.name === i.name || (route.name === 'inspect' && i.name === 'home') ? 'is-active' : ''}" data-nav="${i.name}">${i.label}</a>`,
     )
-    .join('') + breadcrumb + `<a href="#" class="top-nav__link" id="nav-ai-btn">Assistant IA</a>`;
+    .join('') + breadcrumb + repairsBtn + `<a href="#" class="top-nav__link" id="nav-ai-btn">Assistant IA</a>`;
 
   nav.querySelectorAll('[data-nav]').forEach((a) => {
     a.addEventListener('click', (e) => {
@@ -204,6 +209,11 @@ function renderNav() {
   nav.querySelector('#nav-ai-btn')?.addEventListener('click', (e) => {
     e.preventDefault();
     openAiAssistant();
+  });
+  nav.querySelector('#nav-repairs-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const insp = getInspection(route.id);
+    if (insp && window._openRepairsModal) window._openRepairsModal(insp);
   });
 }
 
@@ -2150,6 +2160,7 @@ route = parseHash();
 registerServiceWorker();
 initAiAssistant();
 initNarrativesModal();
+initRepairsModal({ toast });
 render();
 window.__kzoInspectBooted = true;
 if (typeof window.__kzoInspectReady === 'function') window.__kzoInspectReady();
