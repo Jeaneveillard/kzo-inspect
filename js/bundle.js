@@ -6260,6 +6260,49 @@ ${answerLocally(q, ctx)}`;
       slot.innerHTML = "";
     }
   }
+  const REPAIR_PRIORITY_ORDER = { critique: 0, majeur: 1, mineur: 2 };
+  const REPAIR_PRIORITY_EMOJI  = { critique: "🔴", majeur: "🟠", mineur: "🟡" };
+  const REPAIR_LABEL_RE = /^(?:Art\.\s*)?\d+(?:\.\d+)*[a-z]?\.?\s*[-—–:]*\s*/i;
+
+  function getRepairItems(inspection) {
+    if (!inspection?.sections) return [];
+    const items = [];
+    inspection.sections.forEach((sec) => {
+      iterSectionItems(sec, (item) => {
+        if (item.status !== "non-conforme" && item.status !== "a-corriger") return;
+        const presets = (item.selectedPresets || []).map(presetLabel).filter(Boolean);
+        const comment = (item.inspectorComment || "").trim();
+        if (!presets.length && !comment) return;
+        items.push({
+          sectionTitle: sec.title || "",
+          label: item.label || "",
+          status: item.status,
+          priority: item.priority || "",
+          presets,
+          comment,
+        });
+      });
+    });
+    items.sort((a, b) => (REPAIR_PRIORITY_ORDER[a.priority] ?? 3) - (REPAIR_PRIORITY_ORDER[b.priority] ?? 3));
+    return items;
+  }
+
+  function formatRepairItem(item) {
+    const statusLabel   = item.status === "non-conforme" ? "NC" : "AC";
+    const priorityLabel = item.priority ? item.priority.toUpperCase() : "—";
+    const labelClean    = item.label.replace(REPAIR_LABEL_RE, "");
+    const lines = ["[" + statusLabel + " - " + priorityLabel + "] " + item.sectionTitle];
+    if (item.presets.length && item.comment) {
+      lines.push(labelClean + " : " + item.presets.join(" \xB7 "));
+      lines.push(item.comment);
+    } else if (item.presets.length) {
+      lines.push(labelClean + " : " + item.presets.join(" \xB7 "));
+    } else {
+      lines.push(labelClean + " : " + item.comment);
+    }
+    return lines.join("\n");
+  }
+
   function renderNav() {
     const items = [
       { name: "home", label: "Accueil", hash: "" },
@@ -6276,9 +6319,13 @@ ${answerLocally(q, ctx)}`;
       }
     }
 
+    const repairsBtn = (route.name === "inspect" && route.id)
+      ? `<button type="button" class="btn btn--ghost btn--sm top-nav__repairs" id="nav-repairs-btn">🔧 R\xE9parations</button>`
+      : "";
+
     nav.innerHTML = items.map(
       (i) => `<a href="#${i.hash}" class="top-nav__link ${route.name === i.name || route.name === "inspect" && i.name === "home" ? "is-active" : ""}" data-nav="${i.name}">${i.label}</a>`
-    ).join("") + breadcrumb + `<a href="#" class="top-nav__link" id="nav-ai-btn">Assistant IA</a>`;
+    ).join("") + breadcrumb + repairsBtn + `<a href="#" class="top-nav__link" id="nav-ai-btn">Assistant IA</a>`;
 
     nav.querySelectorAll("[data-nav]").forEach((a) => {
       a.addEventListener("click", (e) => {
@@ -6289,6 +6336,11 @@ ${answerLocally(q, ctx)}`;
     nav.querySelector("#nav-ai-btn")?.addEventListener("click", (e) => {
       e.preventDefault();
       openAiAssistant();
+    });
+    nav.querySelector("#nav-repairs-btn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      const insp = getInspection(route.id);
+      if (insp && window._openRepairsModal) window._openRepairsModal(insp);
     });
   }
   function render() {
@@ -8151,10 +8203,61 @@ ${answerLocally(q, ctx)}`;
     };
   }
 
+  function initRepairsModal() {
+    function rmEscHtml(s) {
+      return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    const dlg = document.createElement("dialog");
+    dlg.id = "repairs-modal";
+    dlg.innerHTML = '<div class="rm-header"><span class="rm-header__title">🔧 Sommaire des R\xE9parations</span><span class="rm-header__count" id="rm-count"></span><button type="button" class="rm-close" id="rm-close" aria-label="Fermer">\xD7</button></div><div class="rm-list" id="rm-list"></div><div class="rm-footer"><button type="button" class="btn btn--ghost" id="rm-cancel">Fermer</button><button type="button" class="btn btn--primary" id="rm-copy">📋 Copier le r\xE9sum\xE9</button></div>';
+    document.body.appendChild(dlg);
+
+    document.getElementById("rm-close").addEventListener("click",  () => dlg.close());
+    document.getElementById("rm-cancel").addEventListener("click", () => dlg.close());
+
+    document.getElementById("rm-copy").addEventListener("click", () => {
+      const checked = dlg.querySelectorAll(".rm-item__check:checked");
+      if (!checked.length) { toast("Aucun item s\xE9lectionn\xE9.", "warn"); return; }
+      const text = Array.from(checked).map((cb) => cb.dataset.rmText).join("\n\n");
+      navigator.clipboard.writeText(text)
+        .then(() => { toast("✓ R\xE9sum\xE9 copi\xE9 !", "success"); dlg.close(); })
+        .catch(() => toast("Erreur de copie — r\xE9essayez.", "error"));
+    });
+
+    window._openRepairsModal = function(inspection) {
+      const items = getRepairItems(inspection);
+      const list  = document.getElementById("rm-list");
+      const count = document.getElementById("rm-count");
+      const nc = items.filter((i) => i.status === "non-conforme").length;
+      const ac = items.filter((i) => i.status === "a-corriger").length;
+      count.textContent = items.length
+        ? items.length + " d\xE9faut" + (items.length !== 1 ? "s" : "") + " \xB7 " + nc + " NC \xB7 " + ac + " AC"
+        : "";
+      if (!items.length) {
+        list.innerHTML = '<p class="rm-empty">Aucun d\xE9faut NC ou AC document\xE9 dans cette inspection.</p>';
+        dlg.showModal();
+        return;
+      }
+      list.innerHTML = items.map((item) => {
+        const statusLabel   = item.status === "non-conforme" ? "NC" : "AC";
+        const priorityLabel = item.priority ? item.priority.toUpperCase() : "—";
+        const emoji         = REPAIR_PRIORITY_EMOJI[item.priority] || "⚪";
+        const labelClean    = item.label.replace(REPAIR_LABEL_RE, "");
+        const preview       = item.presets.length
+          ? item.presets[0]
+          : item.comment.substring(0, 70) + (item.comment.length > 70 ? "…" : "");
+        const text = formatRepairItem(item);
+        return '<label class="rm-item"><input type="checkbox" class="rm-item__check" checked data-rm-text="' + rmEscHtml(text) + '" /><div class="rm-item__body"><span class="rm-item__badge rm-item__badge--' + (item.priority || "none") + '">' + emoji + " " + statusLabel + " - " + priorityLabel + '</span><span class="rm-item__section">' + rmEscHtml(item.sectionTitle) + '</span><span class="rm-item__label">' + rmEscHtml(labelClean) + " : " + rmEscHtml(preview) + "</span></div></label>";
+      }).join("");
+      dlg.showModal();
+    };
+  }
+
   route = parseHash();
   registerServiceWorker();
   initAiAssistant();
   initNarrativesModal();
+  initRepairsModal();
   render();
   window.__kzoInspectBooted = true;
   if (typeof window.__kzoInspectReady === "function") window.__kzoInspectReady();
