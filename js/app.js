@@ -48,7 +48,7 @@ import {
   PAYMENT_MODES,
   PAYMENT_STATUS,
 } from './receipt-inspection.js';
-import { compressImage } from './image-utils.js';
+import { compressImage, safeImgSrc } from './image-utils.js';
 import {
   applyTopBarBranding,
   resolveBranding,
@@ -639,7 +639,7 @@ function renderInfoTab(i) {
           ${
             i.coverPhotoDataUrl
               ? `<div class="cover-photo-preview">
-                  <img src="${i.coverPhotoDataUrl}" alt="Photo de couverture" class="cover-photo-preview__img" />
+                  <img src="${safeImgSrc(i.coverPhotoDataUrl)}" alt="Photo de couverture" class="cover-photo-preview__img" />
                   <div class="cover-photo-preview__overlay">
                     <span class="cover-photo-preview__label">Aperçu page de couverture</span>
                   </div>
@@ -1029,7 +1029,7 @@ function renderFinalTab(i) {
       </div>
       ${
         i.signatureDataUrl
-          ? `<p class="sig-preview-label">Signature enregistrée :</p><img src="${i.signatureDataUrl}" class="sig-preview" alt="Signature" />`
+          ? `<p class="sig-preview-label">Signature enregistrée :</p><img src="${safeImgSrc(i.signatureDataUrl)}" class="sig-preview" alt="Signature" />`
           : ''
       }
     </form>`;
@@ -1807,7 +1807,7 @@ function renderProfile() {
         <p class="form-hint form-hint--compact">Votre marque sur l'application, les rapports PDF, la page de couverture, les lettres et les reçus. Mentionnez IBC seulement si vous le souhaitez (certificat).</p>
         <div class="branding-editor" id="branding-editor">
           <div class="branding-logo-preview">
-            <img src="${p.brandingLogoDataUrl || DEFAULT_LOGO_URL}" alt="Logo KZO Inspect" class="branding-logo-preview__img" />
+            <img src="${safeImgSrc(p.brandingLogoDataUrl) || DEFAULT_LOGO_URL}" alt="Logo KZO Inspect" class="branding-logo-preview__img" />
           </div>
           <label class="btn btn--primary">
             📷 ${p.brandingLogoDataUrl ? 'Remplacer votre logo' : 'Téléverser un logo personnalisé'}

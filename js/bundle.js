@@ -1004,6 +1004,8 @@
   var DB_NAME = "kzo_inspect_files_v1";
   var STORE = "blobs";
   var MAX_FILE_BYTES = 20 * 1024 * 1024;
+  var ALLOWED_EXTENSIONS = /\.(pdf|doc|docx|xls|xlsx|png|jpg|jpeg|webp|gif|txt|csv|mp4|mov|heic)$/i;
+  var BLOCKED_EXTENSIONS = /\.(html|htm|svg|xml|xhtml|js|mjs|ts|json|exe|bat|sh|php|py)$/i;
   var dbPromise = null;
   function openDb() {
     if (!dbPromise) {
@@ -1071,6 +1073,13 @@
   async function addClientFile(inspectionId, file, { category = "autre", note = "" } = {}) {
     if (file.size > MAX_FILE_BYTES) {
       throw new Error(`Fichier trop volumineux (max ${formatFileSize(MAX_FILE_BYTES)}).`);
+    }
+    const fileName = file.name || "";
+    if (BLOCKED_EXTENSIONS.test(fileName)) {
+      throw new Error(`Type de fichier non autoris\xE9 : ${fileName}`);
+    }
+    if (!ALLOWED_EXTENSIONS.test(fileName)) {
+      throw new Error(`Extension non reconnue : ${fileName}`);
     }
     const id = crypto.randomUUID();
     const record = {
@@ -2126,6 +2135,14 @@
       img.onerror = () => reject(new Error("Image illisible"));
       img.src = dataUrl;
     });
+  }
+  function safeImgSrc(value) {
+    if (!value || typeof value !== "string") return "";
+    if (/^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(value)) return value;
+    if (/^\.\/assets\/[a-zA-Z0-9._/-]+\.(png|jpg|jpeg|webp|gif|ico)$/.test(value)) return value;
+    if (/^https:\/\/[a-zA-Z0-9.-]+\.(googleapis\.com|googleusercontent\.com)\//.test(value)) return value;
+    console.warn("[Security] safeImgSrc: URL rejet\xE9e :", value.substring(0, 80));
+    return "";
   }
 
   // js/ai-models.js
@@ -4506,7 +4523,7 @@ ${answerLocally(q, ctx)}`;
     return name.slice(0, 3).toUpperCase();
   }
   function orgLogoMarkup(branding, { className = "org-letterhead__logo" } = {}) {
-    const src = branding.logoDataUrl || DEFAULT_LOGO_URL;
+    const src = safeImgSrc(branding.logoDataUrl) || DEFAULT_LOGO_URL;
     if (src) {
       return `<img class="${className} org-letterhead__logo--img" src="${src}" alt="${escapeHtml3(branding.appName)}" />`;
     }
@@ -4619,7 +4636,7 @@ ${answerLocally(q, ctx)}`;
     titleEl.textContent = b.appName;
     const subParts = [b.entreprise && b.entreprise !== b.appName ? b.entreprise : null, b.tagline, b.ibcMention].filter(Boolean);
     subtitleEl.textContent = subParts.join(" \xB7 ") || b.tagline || DEFAULT_BRANDING.tagline;
-    const logoSrc = b.logoDataUrl || DEFAULT_LOGO_URL;
+    const logoSrc = safeImgSrc(b.logoDataUrl) || DEFAULT_LOGO_URL;
     logoEl.innerHTML = `<img src="${logoSrc}" alt="${escapeHtml3(b.appName)}" class="top-bar__logo-img" width="48" height="48" decoding="async" />`;
     logoEl.classList.toggle("top-bar__logo--custom", Boolean(b.logoIsCustom));
     logoEl.classList.toggle("top-bar__logo--default", !b.logoIsCustom);
@@ -4634,7 +4651,7 @@ ${answerLocally(q, ctx)}`;
     return parts.join(", ") || "";
   }
   function buildCoverPageHtml(inspection, profile = {}) {
-    const photo = inspection.coverPhotoDataUrl;
+    const photo = safeImgSrc(inspection.coverPhotoDataUrl);
     if (!photo) return "";
     const branding = resolveBranding(profile);
     const client = inspection.site?.client || "";
@@ -5943,7 +5960,7 @@ ${answerLocally(q, ctx)}`;
 
     const closingHtml = `
     <div class="report-print-page report-print-page--closing">
-      ${inspection.signatureDataUrl ? `<h2>Signature</h2><img class="signature" src="${inspection.signatureDataUrl}" alt="Signature" />` : ''}
+      ${inspection.signatureDataUrl ? `<h2>Signature</h2><img class="signature" src="${safeImgSrc(inspection.signatureDataUrl)}" alt="Signature" />` : ''}
       ${buildReceiptForReport(inspection, profile)}
       ${orgFooterHtml(branding)}
       <footer class="footer">
@@ -6837,7 +6854,7 @@ ${answerLocally(q, ctx)}`;
         <p class="form-hint form-hint--compact">Grande photo de la fa\xE7ade ou de la propri\xE9t\xE9. Elle appara\xEEt en page 1 du rapport PDF (format paysage visuel pleine page).</p>
         <div class="cover-photo-editor" id="cover-photo-editor">
           ${i.coverPhotoDataUrl ? `<div class="cover-photo-preview">
-                  <img src="${i.coverPhotoDataUrl}" alt="Photo de couverture" class="cover-photo-preview__img" />
+                  <img src="${safeImgSrc(i.coverPhotoDataUrl)}" alt="Photo de couverture" class="cover-photo-preview__img" />
                   <div class="cover-photo-preview__overlay">
                     <span class="cover-photo-preview__label">Aper\xE7u page de couverture</span>
                   </div>
@@ -7111,7 +7128,7 @@ ${answerLocally(q, ctx)}`;
           <button type="button" class="btn btn--ghost btn--sm" id="sig-clear">Effacer</button>
         </div>
       </div>
-      ${i.signatureDataUrl ? `<p class="sig-preview-label">Signature enregistr\xE9e :</p><img src="${i.signatureDataUrl}" class="sig-preview" alt="Signature" />` : ""}
+      ${i.signatureDataUrl ? `<p class="sig-preview-label">Signature enregistr\xE9e :</p><img src="${safeImgSrc(i.signatureDataUrl)}" class="sig-preview" alt="Signature" />` : ""}
     </form>`;
   }
   function bindInspectEvents(inspection, panel, tab) {
@@ -7834,7 +7851,7 @@ ${answerLocally(q, ctx)}`;
         <p class="form-hint form-hint--compact">Votre marque sur l'application, les rapports PDF, la page de couverture, les lettres et les re\xE7us. Mentionnez IBC seulement si vous le souhaitez (certificat).</p>
         <div class="branding-editor" id="branding-editor">
           <div class="branding-logo-preview">
-            <img src="${p.brandingLogoDataUrl || DEFAULT_LOGO_URL}" alt="Logo KZO Inspect" class="branding-logo-preview__img" />
+            <img src="${safeImgSrc(p.brandingLogoDataUrl) || DEFAULT_LOGO_URL}" alt="Logo KZO Inspect" class="branding-logo-preview__img" />
           </div>
           <label class="btn btn--primary">
             \u{1F4F7} ${p.brandingLogoDataUrl ? "Remplacer votre logo" : "T\xE9l\xE9verser un logo personnalis\xE9"}
