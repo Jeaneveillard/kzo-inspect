@@ -5239,12 +5239,10 @@ ${answerLocally(q, ctx)}`;
     }
     .report-print-page__head h2 {
       margin: 0;
-      font-size: 17pt;
+      font-size: 13pt;
       color: #0d47a1;
       border: none;
       padding: 0;
-      font-weight: 800;
-      letter-spacing: 0.01em;
     }
     .report-print-page__head p { margin: 4px 0 0; font-size: 9pt; color: #546e7a; }
     .report-toc { list-style: none; padding: 0; margin: 16px 0; }

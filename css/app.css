@@ -1513,6 +1513,10 @@ body {
 }
 .section-list__icon--done { color: #2e7d32; }
 .section-list__icon--warn { color: #c62828; }
+.section-list__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
 
 /* Fil d'Ariane nav */
 .top-nav__breadcrumb {
