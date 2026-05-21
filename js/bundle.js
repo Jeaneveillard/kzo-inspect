@@ -8072,49 +8072,51 @@ ${answerLocally(q, ctx)}`;
           <div class="nm-card__text">${nmEscHtml(n.text)}</div>
           <div class="nm-card__actions">
             <button type="button" class="nm-expand">Voir tout</button>
-            <button type="button" class="nm-insert" data-nm-insert="${nmEscHtml(n.id)}">Ins\xE9rer dans champ</button>
+            <button type="button" class="nm-insert">Ins\xE9rer dans champ</button>
           </div>
         </div>`).join('');
+
+      // Listeners directs sur chaque carte après rendu
+      list.querySelectorAll('.nm-card').forEach((card, idx) => {
+        const n = results[idx];
+        const insertBtn = card.querySelector('.nm-insert');
+        const expandBtn = card.querySelector('.nm-expand');
+        if (insertBtn) {
+          insertBtn.addEventListener('click', () => {
+            const inspection = _nmInspection || getInspection(route.id);
+            if (inspection) {
+              const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
+              if (item) {
+                const existing = (item.inspectorComment || '').trim();
+                item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
+                const panel = document.getElementById('inspect-panel');
+                const ta = panel && panel.querySelector('[data-inspector-comment][data-si="' + _nmSi + '"][data-sub="' + _nmSub + '"][data-ii="' + _nmIi + '"]');
+                if (ta) ta.value = item.inspectorComment;
+                scheduleAutosave(inspection, 'checklist', panel);
+              }
+            }
+            document.getElementById('narratives-modal').close();
+          });
+        }
+        if (expandBtn) {
+          expandBtn.addEventListener('click', () => {
+            const textEl = card.querySelector('.nm-card__text');
+            if (textEl) {
+              textEl.classList.toggle('is-expanded');
+              expandBtn.textContent = textEl.classList.contains('is-expanded') ? 'R\xE9duire' : 'Voir tout';
+            }
+          });
+        }
+      });
     }
 
     dlg.addEventListener('click', (e) => {
-      const insertBtn = e.target.closest('[data-nm-insert]');
-      if (insertBtn) {
-        const id = insertBtn.dataset.nmInsert;
-        const narrative = PROFESSIONAL_NARRATIVES.find((n) => n.id === id);
-        if (narrative) {
-          const inspection = _nmInspection || getInspection(route.id);
-          if (inspection) {
-            const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
-            if (item) {
-              const existing = (item.inspectorComment || '').trim();
-              item.inspectorComment = existing ? existing + '\n\n' + narrative.text : narrative.text;
-              const panel = document.getElementById('inspect-panel');
-              const ta = panel?.querySelector(`[data-inspector-comment][data-si="${_nmSi}"][data-sub="${_nmSub}"][data-ii="${_nmIi}"]`);
-              if (ta) ta.value = item.inspectorComment;
-              scheduleAutosave(inspection, 'checklist', panel);
-            }
-          }
-        }
-        dlg.close();
-        return;
-      }
-      const expandBtn = e.target.closest('.nm-expand');
-      if (expandBtn) {
-        const textEl = expandBtn.closest('.nm-card')?.querySelector('.nm-card__text');
-        if (textEl) {
-          textEl.classList.toggle('is-expanded');
-          expandBtn.textContent = textEl.classList.contains('is-expanded') ? 'R\xE9duire' : 'Voir tout';
-        }
-        return;
-      }
       const tabBtn = e.target.closest('[data-nm-tab]');
       if (tabBtn) {
         dlg.querySelectorAll('.nm-tab').forEach((b) => b.classList.remove('is-active'));
         tabBtn.classList.add('is-active');
         _nmActiveTab = tabBtn.dataset.nmTab;
         nmRender();
-        return;
       }
     });
 
