@@ -1523,9 +1523,11 @@ dialog#narratives-modal {
   width: min(640px, 95vw);
   max-height: 80vh;
   overflow: hidden;
+  background: var(--surface, #fff);
+}
+dialog#narratives-modal[open] {
   display: flex;
   flex-direction: column;
-  background: var(--surface, #fff);
 }
 dialog#narratives-modal::backdrop {
   background: rgba(0,0,0,.45);

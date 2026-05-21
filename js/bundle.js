@@ -8085,10 +8085,8 @@ ${answerLocally(q, ctx)}`;
           insertBtn.addEventListener('click', () => {
             try {
               const inspection = _nmInspection || getInspection(route.id);
-              console.log('[NM] inspection:', !!inspection, '| si:', _nmSi, 'sub:', _nmSub, 'ii:', _nmIi);
               if (inspection) {
                 const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
-                console.log('[NM] item trouvé:', !!item);
                 if (item) {
                   const existing = (item.inspectorComment || '').trim();
                   item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
@@ -8102,9 +8100,7 @@ ${answerLocally(q, ctx)}`;
               console.error('[Narratifs] Erreur insertion:', err);
             }
             const modal = document.getElementById('narratives-modal');
-            console.log('[NM] click insert — modal.open avant close:', modal && modal.open);
             if (modal) modal.close();
-            console.log('[NM] modal.open apres close:', modal && modal.open);
           });
         }
         if (expandBtn) {
@@ -8151,7 +8147,6 @@ ${answerLocally(q, ctx)}`;
         ? sectionId.replace(/^(walk-|bnq-w-|bnq-|aibq-v-|bat-)/, '')
         : '';
       nmRender();
-      console.log('[NM] showModal() appelé depuis:', new Error().stack.split('\n')[2]);
       dlg.showModal();
     };
   }
