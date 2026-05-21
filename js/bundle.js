@@ -8100,7 +8100,9 @@ ${answerLocally(q, ctx)}`;
               console.error('[Narratifs] Erreur insertion:', err);
             }
             const modal = document.getElementById('narratives-modal');
-            if (modal && modal.open) modal.close();
+            console.log('[NM] click insert — modal.open avant close:', modal && modal.open);
+            if (modal) modal.close();
+            console.log('[NM] modal.open apres close:', modal && modal.open);
           });
         }
         if (expandBtn) {
