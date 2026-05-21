@@ -434,6 +434,13 @@ export const PROFESSIONAL_NARRATIVES = [
     text: "Les fils de branchement aériens entre le poteau de distribution et le bâtiment semblent présenter un vieillissement de leur gaine isolante. La responsabilité du câblage entre le poteau et le compteur relève du distributeur d'électricité, mais la section entre le compteur et le panneau devrait être vérifiée par un électricien. Une inspection par un professionnel qualifié est recommandée.",
   },
   {
+    id: 'pn-elec-ext-ac-coffret',
+    sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
+    status: 'a-corriger',
+    title: 'Coffret extérieur à inspecter par électricien',
+    text: "Le coffret électrique extérieur présente des signes d'usure ou de corrosion qui justifient une inspection approfondie par un électricien qualifié. Une vérification de l'étanchéité et de l'état des composants internes est recommandée afin de prévenir toute défaillance.",
+  },
+  {
     id: 'pn-elec-ext-c-1',
     sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
     status: 'conforme',
