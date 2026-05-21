@@ -7329,7 +7329,7 @@ ${answerLocally(q, ctx)}`;
         const ii = +btn.dataset.ii;
         const sectionId = btn.dataset.sectionId || "";
         const status = btn.dataset.status || "";
-        if (window._openNarrativesModal) window._openNarrativesModal(si, sub, ii, sectionId, status);
+        if (window._openNarrativesModal) window._openNarrativesModal(si, sub, ii, sectionId, status, inspection);
       });
     });
     panel.querySelectorAll("[data-preset]").forEach((btn) => {
@@ -8052,7 +8052,7 @@ ${answerLocally(q, ctx)}`;
       <div class="nm-list" id="nm-list"></div>`;
     document.body.appendChild(dlg);
 
-    let _nmSi, _nmSub, _nmIi, _nmSectionId, _nmStatus, _nmActiveTab, _nmQuery;
+    let _nmSi, _nmSub, _nmIi, _nmSectionId, _nmStatus, _nmActiveTab, _nmQuery, _nmInspection;
 
     function nmEscHtml(s) {
       return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -8082,17 +8082,20 @@ ${answerLocally(q, ctx)}`;
       if (insertBtn) {
         const id = insertBtn.dataset.nmInsert;
         const narrative = PROFESSIONAL_NARRATIVES.find((n) => n.id === id);
-        if (!narrative) return;
-        const inspection = getInspection(route.id);
-        if (!inspection) return;
-        const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
-        if (!item) return;
-        const existing = (item.inspectorComment || '').trim();
-        item.inspectorComment = existing ? existing + '\n\n' + narrative.text : narrative.text;
-        const panel = document.getElementById('inspect-panel');
-        const ta = panel?.querySelector(`[data-inspector-comment][data-si="${_nmSi}"][data-sub="${_nmSub}"][data-ii="${_nmIi}"]`);
-        if (ta) ta.value = item.inspectorComment;
-        scheduleAutosave(inspection, 'checklist', panel);
+        if (narrative) {
+          const inspection = _nmInspection || getInspection(route.id);
+          if (inspection) {
+            const item = resolveItem(inspection, _nmSi, _nmSub, _nmIi);
+            if (item) {
+              const existing = (item.inspectorComment || '').trim();
+              item.inspectorComment = existing ? existing + '\n\n' + narrative.text : narrative.text;
+              const panel = document.getElementById('inspect-panel');
+              const ta = panel?.querySelector(`[data-inspector-comment][data-si="${_nmSi}"][data-sub="${_nmSub}"][data-ii="${_nmIi}"]`);
+              if (ta) ta.value = item.inspectorComment;
+              scheduleAutosave(inspection, 'checklist', panel);
+            }
+          }
+        }
         dlg.close();
         return;
       }
@@ -8122,10 +8125,11 @@ ${answerLocally(q, ctx)}`;
       nmRender();
     });
 
-    window._openNarrativesModal = function(si, sub, ii, sectionId, status) {
+    window._openNarrativesModal = function(si, sub, ii, sectionId, status, inspectionRef) {
       _nmSi = si; _nmSub = sub; _nmIi = ii;
       _nmSectionId = sectionId;
       _nmStatus = status;
+      _nmInspection = inspectionRef || null;
       _nmActiveTab = status || 'non-conforme';
       _nmQuery = '';
       document.getElementById('nm-search').value = '';
