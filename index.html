@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c3d5c" />
+  <meta name="description" content="KZO Inspect — inspections de bâtiments au Québec" />
+  <title>KZO Inspect</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="./assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="./assets/icon-192.png" />
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="css/kzo-premium.css" />
+</head>
+<body>
+  <div id="boot-file-warning" class="boot-panel" hidden>
+    <div class="boot-panel__inner">
+      <h2>Ne pas ouvrir le fichier .html directement</h2>
+      <p>
+        KZO Inspect doit être lancé avec le <strong>serveur local</strong> (double-clic sur le fichier ci-dessous).
+        Si vous ouvrez seulement <code>index.html</code>, le navigateur bloque l'application et vous ne voyez que le logo.
+      </p>
+      <ol>
+        <li>Dans le dossier <strong>KZO Inspect</strong> sur le Bureau</li>
+        <li>Double-cliquez sur <strong>Lancer KZO Inspect.bat</strong> (Windows) ou <strong>.command</strong> (Mac)</li>
+        <li>Le navigateur s'ouvrira sur <a href="http://127.0.0.1:8775/">http://127.0.0.1:8775</a></li>
+      </ol>
+      <p class="boot-panel__hint">Laissez la fenêtre Terminal/Console ouverte pendant que vous utilisez l'app.</p>
+    </div>
+  </div>
+
+  <div id="boot-error" class="boot-panel boot-panel--error" hidden>
+    <div class="boot-panel__inner">
+      <h2>Erreur de chargement</h2>
+      <p class="boot-error__detail"></p>
+      <p>Relancez avec <strong>Lancer KZO Inspect.bat</strong> ou <strong>.command</strong> sur le Bureau.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell">
+    <header class="top-bar" id="top-bar">
+      <div class="top-bar__brand">
+        <span class="top-bar__logo top-bar__logo--default">
+          <img src="./assets/logo-full.png" alt="KZO Inspect" class="top-bar__logo-img" width="48" height="48" />
+        </span>
+        <div>
+          <h1 class="top-bar__title">KZO Inspect</h1>
+          <p class="top-bar__subtitle">Inspection de bâtiments au Québec</p>
+        </div>
+      </div>
+      <div class="top-bar__save" id="top-bar-save" hidden></div>
+      <nav class="top-nav" id="main-nav" aria-label="Navigation principale"></nav>
+    </header>
+
+    <main class="main-content" id="main-content" role="main">
+      <div id="boot-loading" class="boot-loading">
+        <img src="./assets/logo-full.png" alt="" class="boot-loading__logo" width="72" height="72" />
+        <p>Chargement de KZO Inspect…</p>
+      </div>
+    </main>
+
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+  </div>
+
+  <dialog id="confirm-dialog" class="modal">
+    <form method="dialog" class="modal__inner">
+      <h2 class="modal__title" id="confirm-title"></h2>
+      <p class="modal__body" id="confirm-body"></p>
+      <div class="modal__actions">
+        <button type="submit" class="btn btn--ghost" value="cancel">Annuler</button>
+        <button type="submit" class="btn btn--danger" value="ok" id="confirm-ok">Confirmer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/boot.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="js/bundle.js?v=594f35a"></script>
+</body>
+</html>
