@@ -2316,7 +2316,14 @@ ${buildContextSummary(ctx)}
 Reformulez (ex. NC vs AC, N/A, rapport) ou activez l'**assistant cloud** dans Profil avec une cl\xE9 OpenAI pour des r\xE9ponses plus d\xE9taill\xE9es.`;
   }
   function formatAssistantMarkdown(text) {
-    return String(text ?? "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br />");
+    const escaped = String(text ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+    return escaped
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n/g, "<br />");
   }
 
   // js/ai-vision.js
@@ -2369,9 +2376,9 @@ Tu rep\xE8res des anomalies *visibles* sur les photos : infiltration, fissures, 
 Tu ne certifies pas la conformit\xE9 au Code du b\xE2timent. Tu sugg\xE8res des statuts et formulations pour le rapport.`;
     let text = "";
     if (provider === "gemini") {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: system }] },
           contents: [
@@ -2534,9 +2541,9 @@ ${buildContextSummary(ctx)}`;
       const data = await res.json();
       text = data.content?.[0]?.text;
     } else if (provider === "gemini") {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({ system_instruction: { parts: [{ text: system }] }, contents: [{ role: "user", parts: [{ text: question }] }], generationConfig: { temperature: 0.4, maxOutputTokens: 700 } })
       });
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error?.message || `Erreur API Gemini (${res.status})`); }
