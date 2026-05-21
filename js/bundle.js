@@ -8149,6 +8149,7 @@ ${answerLocally(q, ctx)}`;
         ? sectionId.replace(/^(walk-|bnq-w-|bnq-|aibq-v-|bat-)/, '')
         : '';
       nmRender();
+      console.log('[NM] showModal() appelé depuis:', new Error().stack.split('\n')[2]);
       dlg.showModal();
     };
   }
