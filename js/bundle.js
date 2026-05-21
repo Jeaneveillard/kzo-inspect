@@ -5216,12 +5216,9 @@ ${answerLocally(q, ctx)}`;
     .report-print-page--closing { page-break-after: auto; break-after: auto; }
     .report-section-block {
       display: block;
-      page-break-before: always;
-      break-before: page;
     }
     .report-print-page--section {
-      page-break-before: always;
-      break-before: page;
+      /* sections se suivent sans saut de page force */
     }
     .report-print-page__footer {
       position: absolute;
