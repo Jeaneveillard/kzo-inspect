@@ -1,0 +1,12 @@
+# Claude Code — local settings (clé API, préférences personnelles)
+.claude/settings.local.json
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+*.swp
+*.swo
+.vscode/settings.json

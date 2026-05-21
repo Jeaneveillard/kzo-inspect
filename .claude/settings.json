@@ -1,0 +1,29 @@
+{
+  "language": "fr-CA",
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep"
+    ]
+  },
+  "spinnerTipsOverride": {
+    "excludeDefault": true,
+    "tips": [
+      "KZO Inspect — toujours répercuter les changements dans bundle.js après les sources",
+      "Monter la version du cache SW (v6→v7) après chaque modif de sw.js",
+      "Normes actives : REIBH 2024 · BNQ 3009-500 · AIBQ · CNB 2020",
+      "Ne jamais utiliser d'apostrophes françaises dans les attributs onclick inline",
+      "Inspecteur titulaire : Jean Eveillard Cazeau (constante INSPECTOR_NAME dans storage.js)"
+    ]
+  }
+}

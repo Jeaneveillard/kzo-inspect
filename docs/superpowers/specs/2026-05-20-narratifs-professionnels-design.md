@@ -1,6 +1,6 @@
 # Bibliothèque de narratifs professionnels — Design Spec
 **Date :** 2026-05-20  
-**Projet :** KZO InspectPro — Application d'inspection pré-achat résidentielle  
+**Projet :** KZO Inspect — Application d'inspection pré-achat résidentielle  
 **Fonctionnalité :** Narratifs professionnels longs pré-établis (à la manière d'Inspect Easy)  
 **Statut :** Approuvé
 
