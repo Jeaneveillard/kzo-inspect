@@ -5864,6 +5864,7 @@ ${answerLocally(q, ctx)}`;
         <dt>Adresse</dt><dd>${escapeHtml7(inspection.site.adresse)}, ${escapeHtml7(inspection.site.ville)}</dd>
         <dt>Type</dt><dd>${escapeHtml7(inspection.site.typeBatiment)}</dd>
       </dl>
+      ${buildLocationMapHtml(inspection.site)}
       <h2>Inspecteur</h2>
       <dl class="meta-grid">
         <dt>Nom</dt><dd>${escapeHtml7(inspection.inspector.nom)}</dd>
@@ -5915,6 +5916,31 @@ ${answerLocally(q, ctx)}`;
       return `<p class="disclaimer"><strong>Avis BNQ 3009-500 :</strong> Inspection conforme aux pratiques de la norme pour une transaction immobilière. Ne certifie pas la conformité aux codes ou règlements. Limitations inhérentes (annexe A). Expertises spécialisées recommandées lorsque requis.</p>`;
     }
     return '';
+  }
+
+  function buildLocationMapHtml(site) {
+    const addr = [site.adresse, site.ville, site.codePostal, "Qu\xE9bec, Canada"]
+      .filter(Boolean).join(", ");
+    if (!site.adresse && !site.ville) return "";
+    const encoded = encodeURIComponent(addr);
+    const mapsLink = "https://www.google.com/maps?q=" + encoded;
+    const embedUrl = "https://maps.google.com/maps?q=" + encoded + "&output=embed&hl=fr";
+    return `
+  <div class="report-location">
+    <h2>Localisation du b\xE2timent</h2>
+    <iframe
+      class="report-location__map"
+      src="${embedUrl}"
+      width="100%"
+      height="210"
+      style="border:1px solid #ddd;border-radius:6px;display:block;margin-bottom:4px;"
+      loading="eager"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+    <p style="font-size:8pt;color:#888;margin:0;">
+      <a href="${mapsLink}" style="color:#0d47a1;">${escapeHtml7(addr)}</a>
+    </p>
+  </div>`;
   }
 
   function clientFilesReportHtml(files) {
@@ -6020,7 +6046,19 @@ ${answerLocally(q, ctx)}`;
     ${appendix.html}
     ${paddingHtml}
     ${closingHtml}
-    <script>window.onload = () => window.print();</script>
+    <script>
+    window.onload = function() {
+      var mapIframe = document.querySelector('.report-location__map');
+      if (mapIframe) {
+        var printed = false;
+        var doPrint = function() { if (!printed) { printed = true; window.print(); } };
+        mapIframe.addEventListener('load', doPrint);
+        setTimeout(doPrint, 3000);
+      } else {
+        window.print();
+      }
+    };
+  </script>
   </body>
   </html>`;
   }
