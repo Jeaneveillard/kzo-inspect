@@ -882,6 +882,77 @@ body {
   margin-bottom: 8px;
 }
 
+/* ── Réponses rapides (preset chips) ─────────────────────────── */
+.check-item__presets {
+  margin-top: 8px;
+}
+
+.check-item__presets-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.preset-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1.5px solid var(--border, #cbd5e1);
+  border-radius: 20px;
+  background: var(--surface, #f8fafc);
+  color: var(--text, #1e293b);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  line-height: 1.3;
+}
+
+.preset-chip:hover {
+  border-color: var(--qc-blue, #1a6496);
+  background: #e8f1f8;
+}
+
+.preset-chip.is-selected {
+  background: var(--qc-blue, #1a6496);
+  border-color: var(--qc-blue, #1a6496);
+  color: #fff;
+  font-weight: 600;
+}
+
+.preset-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.check-item__comment-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 4px;
+}
+
+.check-item__inspector-comment {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .check-item__note {
   min-height: 60px;
   resize: vertical;

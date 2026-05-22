@@ -1,4 +1,6 @@
-const CACHE = 'kzo-inspect-v14';
+const CACHE = 'kzo-inspect-v16';
+const BUNDLE_VERSION = '?v=14';
+
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +11,7 @@ const ASSETS = [
   './assets/logo-full.png',
   './assets/kzo-inspect-logo.png',
   './js/boot.js',
-  './js/bundle.js',
+  './js/bundle.js' + BUNDLE_VERSION,
 ];
 
 function isAppAsset(pathname) {
@@ -44,7 +46,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isAppAsset(url.pathname)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((res) => {
           if (res.ok) {
             const copy = res.clone();

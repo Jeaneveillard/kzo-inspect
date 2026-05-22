@@ -88,6 +88,10 @@ try {
 
       $ext = [IO.Path]::GetExtension($candidate).ToLowerInvariant()
       $res.ContentType = if ($mime.ContainsKey($ext)) { $mime[$ext] } else { 'application/octet-stream' }
+      # Empêche le navigateur et le SW de servir des fichiers périmés
+      $res.Headers.Add('Cache-Control', 'no-cache, no-store, must-revalidate')
+      $res.Headers.Add('Pragma', 'no-cache')
+      $res.Headers.Add('Expires', '0')
       $bytes = [IO.File]::ReadAllBytes($candidate)
       $res.StatusCode = 200
       $res.ContentLength64 = $bytes.Length
