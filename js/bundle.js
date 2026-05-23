@@ -4337,7 +4337,7 @@ ${answerLocally(q, ctx)}`;
       <span class="check-item__presets-label">R\xE9ponses rapides</span>
       <div class="preset-chips" role="group" aria-label="R\xE9ponses pr\xE9d\xE9finies">${chips}</div>
       <label class="check-item__comment-label" style="display:flex;align-items:center;gap:0.5rem;"><span>Commentaire inspecteur</span><button type="button" class="btn btn--ghost btn--sm narratives-trigger" data-open-narratives data-si="${si}" data-sub="${subIndex}" data-ii="${ii}" data-section-id="${escapeHtml2(contextId || '')}" data-status="${escapeHtml2(item.status || '')}">&#x1F4CB; Narratifs</button></label>
-      <textarea class="input check-item__inspector-comment" placeholder="Vos observations, mesures, r\xE9f\xE9rences d'articles\u2026" data-inspector-comment ${coords} rows="2">${escapeHtml2(item.inspectorComment)}</textarea>
+      <textarea class="input check-item__inspector-comment" placeholder="Vos observations, mesures, r\xE9f\xE9rences d'articles\u2026" data-inspector-comment ${coords} rows="3">${escapeHtml2(item.inspectorComment)}</textarea>
     </div>`;
   }
   function renderChecklistItem(item, si, subIndex, ii, filter, sec, subId) {
@@ -7308,16 +7308,29 @@ ${answerLocally(q, ctx)}`;
       }
     });
     document.getElementById("btn-report").onclick = async () => {
+      const btnReport = document.getElementById("btn-report");
+      const pending = countPending(inspection);
+      if (pending > 0) {
+        const ok = await confirmAction(
+          "Checklist incompl\xE8te",
+          `${pending} point${pending > 1 ? "s" : ""} sans statut. G\xE9n\xE9rer le rapport quand m\xEAme ?`
+        );
+        if (!ok) return;
+      }
+      if (btnReport) { btnReport.disabled = true; btnReport.textContent = "G\xE9n\xE9ration…"; }
       saveCurrentTab(inspection, tab, panel);
       upsertInspection(inspection);
-      // Sauvegarde locale automatique avant génération du rapport final
       try {
         exportInspectionBackup(inspection, loadProfile());
         toast("Sauvegarde locale du dossier t\xE9l\xE9charg\xE9e", "success");
       } catch (e) {
         console.warn("[KZO] Backup pr\xE9-rapport \xE9chou\xE9 :", e);
       }
-      await openReport(inspection);
+      try {
+        await openReport(inspection);
+      } finally {
+        if (btnReport) { btnReport.disabled = false; btnReport.textContent = "Rapport PDF"; }
+      }
     };
     document.getElementById("btn-thanks").onclick = () => {
       saveCurrentTab(inspection, tab, panel);
@@ -7536,25 +7549,25 @@ ${answerLocally(q, ctx)}`;
       }
     });
     panel.querySelector('[data-checklist-view="all"]')?.addEventListener("click", () => {
+      route.tab = "checklist";
       route.checklistView = "all";
       route.checklistSection = null;
       renderInspect(inspection.id);
-      route.tab = "checklist";
     });
     panel.querySelectorAll("[data-goto-section]").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.disabled) return;
+        route.tab = "checklist";
         route.checklistView = "section";
         route.checklistSection = +btn.dataset.gotoSection;
         renderInspect(inspection.id);
-        route.tab = "checklist";
       });
     });
     panel.querySelectorAll("[data-checklist-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
+        route.tab = "checklist";
         route.checklistFilter = btn.dataset.checklistFilter;
         renderInspect(inspection.id);
-        route.tab = "checklist";
       });
     });
     panel.querySelectorAll("[data-section-na]").forEach((btn) => {
@@ -7565,8 +7578,8 @@ ${answerLocally(q, ctx)}`;
           sec.items.forEach((it) => { it.status = "na"; });
           (sec.subsections || []).forEach((sub) => { sub.items.forEach((it) => { it.status = "na"; }); });
           upsertInspection(inspection);
-          renderInspect(inspection.id);
           route.tab = "checklist";
+          renderInspect(inspection.id);
         }
       });
     });
@@ -7578,8 +7591,8 @@ ${answerLocally(q, ctx)}`;
           const subsec = inspection.sections[si]?.subsections?.[sub];
           if (subsec) subsec.items.forEach((it) => { it.status = "na"; });
           upsertInspection(inspection);
-          renderInspect(inspection.id);
           route.tab = "checklist";
+          renderInspect(inspection.id);
         }
       });
     });
@@ -7594,8 +7607,8 @@ ${answerLocally(q, ctx)}`;
       if (!item) return;
       item.status = map[e.key];
       scheduleAutosave(inspection, "checklist", panel);
-      renderInspect(inspection.id);
       route.tab = "checklist";
+      renderInspect(inspection.id);
     });
     panel.querySelectorAll("[data-status]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -7609,10 +7622,10 @@ ${answerLocally(q, ctx)}`;
           autoAddExpert(inspection, getContextId(inspection, si, sub), item.label || "");
         }
         scheduleAutosave(inspection, "checklist", panel);
+        route.tab = "checklist";
         route.checklistView = route.checklistView || "section";
         route.checklistSection = route.checklistSection ?? si;
         renderInspect(inspection.id);
-        route.tab = "checklist";
       });
     });
     panel.querySelectorAll("[data-open-narratives]").forEach((btn) => {
@@ -7708,24 +7721,36 @@ ${answerLocally(q, ctx)}`;
       });
     });
     panel.querySelectorAll("[data-photo]").forEach((input) => {
+      let _uploading = false;
       input.addEventListener("change", async (e) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (!file || _uploading) return;
         const si = +input.dataset.si;
         const sub = +input.dataset.sub;
         const ii = +input.dataset.ii;
         const item = resolveItem(inspection, si, sub, ii);
         if (!item) return;
+        if (!item.photos) item.photos = [];
+        if (item.photos.length >= 4) {
+          toast("Maximum 4 photos par point", "warn");
+          input.value = "";
+          return;
+        }
+        _uploading = true;
         try {
           const dataUrl = await compressImage(file);
-          if (!item.photos) item.photos = [];
           if (item.photos.length >= 4) { toast("Maximum 4 photos par point", "warn"); return; }
           item.photos.push(dataUrl);
           upsertInspection(inspection);
-          renderInspect(inspection.id);
+          const scrollY = main.scrollTop;
           route.tab = "checklist";
+          renderInspect(inspection.id);
+          requestAnimationFrame(() => { main.scrollTop = scrollY; });
         } catch {
           toast("Impossible de charger la photo", "error");
+        } finally {
+          _uploading = false;
+          input.value = "";
         }
       });
     });
@@ -7739,8 +7764,10 @@ ${answerLocally(q, ctx)}`;
         if (!item) return;
         item.photos.splice(pi, 1);
         upsertInspection(inspection);
-        renderInspect(inspection.id);
+        const scrollY = main.scrollTop;
         route.tab = "checklist";
+        renderInspect(inspection.id);
+        requestAnimationFrame(() => { main.scrollTop = scrollY; });
       });
     });
     panel.querySelectorAll("[data-edit-photo]").forEach((btn) => {
@@ -7754,8 +7781,10 @@ ${answerLocally(q, ctx)}`;
         openImageEditor(item.photos[pi], (newDataUrl) => {
           item.photos[pi] = newDataUrl;
           upsertInspection(inspection);
-          renderInspect(inspection.id);
+          const scrollY = main.scrollTop;
           route.tab = "checklist";
+          renderInspect(inspection.id);
+          requestAnimationFrame(() => { main.scrollTop = scrollY; });
         });
       });
     });
@@ -7782,8 +7811,8 @@ ${answerLocally(q, ctx)}`;
             const base = (item.inspectorComment || "").replace(/\n*---\s*Analyse IA\s*---[\s\S]*$/i, "").trimEnd();
             item.inspectorComment = (base ? base + "\n\n" : "") + "--- Analyse IA ---\n" + result.text;
             upsertInspection(inspection);
-            renderInspect(inspection.id);
             route.tab = "checklist";
+            renderInspect(inspection.id);
             toast("Photo analys\xE9e avec l'IA !", "success");
           }
         } catch (err) {

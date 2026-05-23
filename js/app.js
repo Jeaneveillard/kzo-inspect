@@ -1105,16 +1105,29 @@ function bindInspectEvents(inspection, panel, tab) {
     }
   });
   document.getElementById('btn-report').onclick = async () => {
+    const btnReport = document.getElementById('btn-report');
+    const pending = countPending(inspection);
+    if (pending > 0) {
+      const ok = await confirmAction(
+        'Checklist incomplète',
+        `${pending} point${pending > 1 ? 's' : ''} sans statut. Générer le rapport quand même ?`
+      );
+      if (!ok) return;
+    }
+    if (btnReport) { btnReport.disabled = true; btnReport.textContent = 'Génération…'; }
     saveCurrentTab(inspection, tab, panel);
     upsertInspection(inspection);
-    // Sauvegarde locale automatique avant génération du rapport final
     try {
       exportInspectionBackup(inspection, loadProfile());
       toast('Sauvegarde locale du dossier téléchargée', 'success');
     } catch (e) {
       console.warn('[KZO] Backup pré-rapport échoué :', e);
     }
-    await openReport(inspection);
+    try {
+      await openReport(inspection);
+    } finally {
+      if (btnReport) { btnReport.disabled = false; btnReport.textContent = 'Rapport PDF'; }
+    }
   };
   document.getElementById('btn-thanks').onclick = () => {
     saveCurrentTab(inspection, tab, panel);
@@ -1347,27 +1360,27 @@ function bindChecklist(inspection, panel) {
   });
 
   panel.querySelector('[data-checklist-view="all"]')?.addEventListener('click', () => {
+    route.tab = 'checklist';
     route.checklistView = 'all';
     route.checklistSection = null;
     renderInspect(inspection.id);
-    route.tab = 'checklist';
   });
 
   panel.querySelectorAll('[data-goto-section]').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (btn.disabled) return;
+      route.tab = 'checklist';
       route.checklistView = 'section';
       route.checklistSection = +btn.dataset.gotoSection;
       renderInspect(inspection.id);
-      route.tab = 'checklist';
     });
   });
 
   panel.querySelectorAll('[data-checklist-filter]').forEach((btn) => {
     btn.addEventListener('click', () => {
+      route.tab = 'checklist';
       route.checklistFilter = btn.dataset.checklistFilter;
       renderInspect(inspection.id);
-      route.tab = 'checklist';
     });
   });
 
@@ -1379,8 +1392,8 @@ function bindChecklist(inspection, panel) {
         sec.items.forEach((it) => { it.status = 'na'; });
         (sec.subsections || []).forEach((sub) => { sub.items.forEach((it) => { it.status = 'na'; }); });
         upsertInspection(inspection);
-        renderInspect(inspection.id);
         route.tab = 'checklist';
+        renderInspect(inspection.id);
       }
     });
   });
@@ -1394,8 +1407,8 @@ function bindChecklist(inspection, panel) {
         if (!subsec) return;
         subsec.items.forEach((it) => { it.status = 'na'; });
         upsertInspection(inspection);
-        renderInspect(inspection.id);
         route.tab = 'checklist';
+        renderInspect(inspection.id);
       }
     });
   });
@@ -1411,8 +1424,8 @@ function bindChecklist(inspection, panel) {
     if (!item) return;
     item.status = map[e.key];
     scheduleAutosave(inspection, 'checklist', panel);
-    renderInspect(inspection.id);
     route.tab = 'checklist';
+    renderInspect(inspection.id);
   });
 
   panel.querySelectorAll('[data-status]').forEach((btn) => {
@@ -1427,10 +1440,10 @@ function bindChecklist(inspection, panel) {
         autoAddExpert(inspection, getContextId(inspection, si, sub), item.label || '');
       }
       scheduleAutosave(inspection, 'checklist', panel);
+      route.tab = 'checklist';
       route.checklistView = route.checklistView || 'section';
       route.checklistSection = route.checklistSection ?? si;
       renderInspect(inspection.id);
-      route.tab = 'checklist';
     });
   });
 
@@ -1522,27 +1535,36 @@ function bindChecklist(inspection, panel) {
   });
 
   panel.querySelectorAll('[data-photo]').forEach((input) => {
+    let _uploading = false;
     input.addEventListener('change', async (e) => {
       const file = e.target.files?.[0];
-      if (!file) return;
+      if (!file || _uploading) return;
       const si = +input.dataset.si;
       const sub = +input.dataset.sub;
       const ii = +input.dataset.ii;
       const item = resolveItem(inspection, si, sub, ii);
       if (!item) return;
+      if (!item.photos) item.photos = [];
+      if (item.photos.length >= 4) {
+        toast('Maximum 4 photos par point', 'warn');
+        input.value = '';
+        return;
+      }
+      _uploading = true;
       try {
         const dataUrl = await compressImage(file);
-        if (!item.photos) item.photos = [];
-        if (item.photos.length >= 4) {
-          toast('Maximum 4 photos par point', 'warn');
-          return;
-        }
+        if (item.photos.length >= 4) { toast('Maximum 4 photos par point', 'warn'); return; }
         item.photos.push(dataUrl);
         upsertInspection(inspection);
-        renderInspect(inspection.id);
+        const scrollY = main.scrollTop;
         route.tab = 'checklist';
+        renderInspect(inspection.id);
+        requestAnimationFrame(() => { main.scrollTop = scrollY; });
       } catch {
         toast('Impossible de charger la photo', 'error');
+      } finally {
+        _uploading = false;
+        input.value = '';
       }
     });
   });
@@ -1557,8 +1579,10 @@ function bindChecklist(inspection, panel) {
       if (!item) return;
       item.photos.splice(pi, 1);
       upsertInspection(inspection);
-      renderInspect(inspection.id);
+      const scrollY = main.scrollTop;
       route.tab = 'checklist';
+      renderInspect(inspection.id);
+      requestAnimationFrame(() => { main.scrollTop = scrollY; });
     });
   });
 
@@ -1573,8 +1597,10 @@ function bindChecklist(inspection, panel) {
       openImageEditor(item.photos[pi], (newDataUrl) => {
         item.photos[pi] = newDataUrl;
         upsertInspection(inspection);
-        renderInspect(inspection.id);
+        const scrollY = main.scrollTop;
         route.tab = 'checklist';
+        renderInspect(inspection.id);
+        requestAnimationFrame(() => { main.scrollTop = scrollY; });
       });
     });
   });
@@ -1605,8 +1631,8 @@ function bindChecklist(inspection, panel) {
           const base = (item.inspectorComment || '').replace(/\n*---\s*Analyse IA\s*---[\s\S]*$/i, '').trimEnd();
           item.inspectorComment = (base ? base + '\n\n' : '') + '--- Analyse IA ---\n' + result.text;
           upsertInspection(inspection);
-          renderInspect(inspection.id);
           route.tab = 'checklist';
+          renderInspect(inspection.id);
           toast("Photo analysée avec l'IA !", 'success');
         }
       } catch (err) {

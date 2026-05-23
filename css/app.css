@@ -285,9 +285,9 @@ body {
 }
 
 .btn--sm {
-  padding: 6px 12px;
+  padding: 8px 14px;
   font-size: 0.8rem;
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .btn--back {
@@ -908,7 +908,7 @@ body {
 .preset-chip {
   display: inline-flex;
   align-items: center;
-  padding: 7px 12px;
+  padding: 10px 14px;
   border: 1.5px solid var(--border, #cbd5e1);
   border-radius: 20px;
   background: var(--surface, #f8fafc);
@@ -918,7 +918,7 @@ body {
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
   line-height: 1.3;
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .preset-chip:hover {
@@ -968,54 +968,61 @@ body {
 }
 
 .photo-thumb {
-  position: relative;
   margin: 0;
-}
-
-.photo-thumb img {
-  width: 72px;
-  height: 72px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-}
-
-.photo-thumb__actions {
-  position: absolute;
-  top: 4px;
-  right: 4px;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 4px;
 }
 
+.photo-thumb img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.photo-thumb__actions {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  width: 96px;
+}
+
 .btn-photo-action {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.1);
-  background: rgba(255, 255, 255, 0.9);
+  flex: 1;
+  min-height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface, #fff);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  transition: transform 0.1s, background 0.1s;
+  font-size: 14px;
+  transition: background 0.1s;
 }
 
 .btn-photo-action:hover {
-  transform: scale(1.1);
-  background: #fff;
+  background: #e8f1f8;
 }
 
 .photo-thumb__del {
-  background: var(--accent);
-  color: #fff;
-  border: none;
+  background: #fef2f2;
+  color: var(--accent);
+  border-color: #fecaca;
 }
 .photo-thumb__del:hover {
-  background: #d32f2f;
+  background: var(--accent);
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .photo-thumb img { width: 100px; height: 100px; }
+  .photo-thumb__actions { width: 100px; }
+  .btn-photo-action { min-height: 40px; font-size: 16px; }
 }
 
 .action-bar {
@@ -1273,9 +1280,20 @@ body {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-left: 4px;
-    padding-right: 4px;
+    padding-right: 52px;
     scrollbar-width: none;
     gap: 6px;
+  }
+  .action-bar::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    flex: none;
+    width: 48px;
+    margin-left: -48px;
+    background: linear-gradient(90deg, transparent, var(--bg, #f0f4f8));
+    pointer-events: none;
+    align-self: stretch;
   }
   .action-bar::-webkit-scrollbar { display: none; }
   .action-bar .btn,
