@@ -143,10 +143,19 @@ export function inspectorFieldsFromProfile(profile = loadProfile()) {
 }
 
 export function saveProfile(profile) {
-  localStorage.setItem(
-    PROFILE_KEY,
-    JSON.stringify({ ...profile, nom: INSPECTOR_NAME }),
-  );
+  try {
+    localStorage.setItem(
+      PROFILE_KEY,
+      JSON.stringify({ ...profile, nom: INSPECTOR_NAME }),
+    );
+  } catch (e) {
+    if (e?.name === 'QuotaExceededError' || e?.code === 22) {
+      window.dispatchEvent(new CustomEvent('kzo:storage-quota', {
+        detail: { message: 'Espace de stockage plein — exportez vos données (Profil → Sauvegarde) puis réduisez les photos.' },
+      }));
+    }
+    throw e;
+  }
 }
 
 function defaultProfile() {

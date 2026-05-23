@@ -287,6 +287,7 @@ body {
 .btn--sm {
   padding: 6px 12px;
   font-size: 0.8rem;
+  min-height: 36px;
 }
 
 .btn--back {
@@ -907,7 +908,7 @@ body {
 .preset-chip {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 7px 12px;
   border: 1.5px solid var(--border, #cbd5e1);
   border-radius: 20px;
   background: var(--surface, #f8fafc);
@@ -917,6 +918,7 @@ body {
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
   line-height: 1.3;
+  min-height: 36px;
 }
 
 .preset-chip:hover {
@@ -1263,7 +1265,25 @@ body {
   .expert-row { grid-template-columns: 1fr; }
   .top-bar__subtitle { display: none; }
   .page-header { flex-direction: column; }
-  .action-bar .btn { flex: 1; min-width: 120px; }
+}
+
+/* Action bar défilable horizontalement sur mobile */
+@media (max-width: 767px) {
+  .action-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-left: 4px;
+    padding-right: 4px;
+    scrollbar-width: none;
+    gap: 6px;
+  }
+  .action-bar::-webkit-scrollbar { display: none; }
+  .action-bar .btn,
+  .action-bar select {
+    flex: none;
+    white-space: nowrap;
+    min-width: auto;
+  }
 }
 
 /* ── Assistant IA — Panel flottant ──────────────────────────────── */

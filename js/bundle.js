@@ -1282,10 +1282,19 @@
     };
   }
   function saveProfile(profile) {
-    localStorage.setItem(
-      PROFILE_KEY,
-      JSON.stringify({ ...profile, nom: INSPECTOR_NAME })
-    );
+    try {
+      localStorage.setItem(
+        PROFILE_KEY,
+        JSON.stringify({ ...profile, nom: INSPECTOR_NAME })
+      );
+    } catch (e) {
+      if (e?.name === "QuotaExceededError" || e?.code === 22) {
+        window.dispatchEvent(new CustomEvent("kzo:storage-quota", {
+          detail: { message: "Espace de stockage plein — exportez vos donn\xE9es (Profil → Sauvegarde) puis r\xE9duisez les photos." }
+        }));
+      }
+      throw e;
+    }
   }
   function defaultProfile() {
     return {
@@ -2093,28 +2102,78 @@
   }
 
   // js/image-utils.js
-  function compressImage(file, maxW = 1200, quality = 0.72) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > maxW) {
-            height = height * maxW / width;
-            width = maxW;
+  function readExifOrientation(file) {
+    return new Promise(function(resolve) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          var data = new DataView(e.target.result);
+          if (data.getUint16(0, false) !== 0xFFD8) return resolve(1);
+          var offset = 2;
+          while (offset + 4 < data.byteLength) {
+            var marker = data.getUint16(offset, false);
+            var segLen = data.getUint16(offset + 2, false);
+            if (marker === 0xFFE1) {
+              if (data.getUint32(offset + 4, false) !== 0x45786966) break;
+              var tiff = offset + 10;
+              var le = data.getUint16(tiff, false) === 0x4949;
+              var ifd0 = tiff + data.getUint32(tiff + 4, le);
+              var tags = data.getUint16(ifd0, le);
+              for (var i = 0; i < tags; i++) {
+                var p = ifd0 + 2 + i * 12;
+                if (data.getUint16(p, le) === 0x0112) return resolve(data.getUint16(p + 8, le));
+              }
+              break;
+            }
+            if (marker === 0xFFDA) break;
+            if (segLen < 2) break;
+            offset += 2 + segLen;
           }
-          const c = document.createElement("canvas");
-          c.width = width;
-          c.height = height;
-          c.getContext("2d").drawImage(img, 0, 0, width, height);
-          resolve(c.toDataURL("image/jpeg", quality));
-        };
-        img.onerror = reject;
-        img.src = reader.result;
+        } catch (_) {}
+        resolve(1);
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+      reader.onerror = function() { resolve(1); };
+      reader.readAsArrayBuffer(file.slice(0, 131072));
+    });
+  }
+  function compressImage(file, maxW = 1200, quality = 0.72) {
+    return readExifOrientation(file).then(function(orientation) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = function() {
+          var img = new Image();
+          img.onerror = reject;
+          img.onload = function() {
+            var swap = orientation >= 5 && orientation <= 8;
+            var rawW = img.width, rawH = img.height;
+            var dispW = swap ? rawH : rawW;
+            var dispH = swap ? rawW : rawH;
+            var scale = dispW > maxW ? maxW / dispW : 1;
+            var cW = Math.round(dispW * scale);
+            var cH = Math.round(dispH * scale);
+            var drawW = Math.round(rawW * scale);
+            var drawH = Math.round(rawH * scale);
+            var c = document.createElement("canvas");
+            c.width = cW;
+            c.height = cH;
+            var ctx = c.getContext("2d");
+            ctx.save();
+            switch (orientation) {
+              case 2: ctx.translate(cW, 0);  ctx.scale(-1, 1);          break;
+              case 3: ctx.translate(cW, cH); ctx.rotate(Math.PI);       break;
+              case 4: ctx.translate(0, cH);  ctx.scale(1, -1);          break;
+              case 6: ctx.translate(cW, 0);  ctx.rotate(0.5 * Math.PI); break;
+              case 8: ctx.translate(0, cH);  ctx.rotate(-0.5 * Math.PI);break;
+            }
+            ctx.drawImage(img, 0, 0, drawW, drawH);
+            ctx.restore();
+            resolve(c.toDataURL("image/jpeg", quality));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
     });
   }
   function shrinkDataUrl(dataUrl, maxW = 1280, quality = 0.78) {
@@ -6363,6 +6422,10 @@ ${answerLocally(q, ctx)}`;
   }
   function confirmAction(title, body) {
     return new Promise((resolve) => {
+      if (typeof confirmDialog.showModal !== "function") {
+        resolve(window.confirm(title + "\n\n" + body));
+        return;
+      }
       document.getElementById("confirm-title").textContent = title;
       document.getElementById("confirm-body").textContent = body;
       confirmDialog.showModal();
@@ -8335,7 +8398,8 @@ ${answerLocally(q, ctx)}`;
         ? sectionId.replace(/^(walk-|bnq-w-|bnq-|aibq-v-|bat-)/, '')
         : '';
       nmRender();
-      dlg.showModal();
+      if (typeof dlg.showModal === "function") dlg.showModal();
+      else { dlg.setAttribute("open", ""); }
     };
   }
 
@@ -8371,7 +8435,8 @@ ${answerLocally(q, ctx)}`;
         : "";
       if (!items.length) {
         list.innerHTML = '<p class="rm-empty">Aucun d\xE9faut NC ou AC document\xE9 dans cette inspection.</p>';
-        dlg.showModal();
+        if (typeof dlg.showModal === "function") dlg.showModal();
+        else { dlg.setAttribute("open", ""); }
         return;
       }
       list.innerHTML = items.map((item) => {
@@ -8386,7 +8451,8 @@ ${answerLocally(q, ctx)}`;
         const safePriority = ['critique','majeur','mineur'].includes(item.priority) ? item.priority : 'none';
         return '<label class="rm-item"><input type="checkbox" class="rm-item__check" checked data-rm-text="' + rmEscHtml(text) + '" /><div class="rm-item__body"><span class="rm-item__badge rm-item__badge--' + safePriority + '">' + emoji + " " + statusLabel + " - " + priorityLabel + '</span><span class="rm-item__section">' + rmEscHtml(item.sectionTitle) + '</span><span class="rm-item__label">' + rmEscHtml(labelClean) + " : " + rmEscHtml(preview) + "</span></div></label>";
       }).join("");
-      dlg.showModal();
+      if (typeof dlg.showModal === "function") dlg.showModal();
+      else { dlg.setAttribute("open", ""); }
     };
   }
 
