@@ -4250,7 +4250,11 @@ ${answerLocally(q, ctx)}`;
   function getNarratives(status, sectionId, query = '') {
     let results = PROFESSIONAL_NARRATIVES;
     if (status) results = results.filter((n) => n.status === status);
-    if (sectionId) results = results.filter((n) => n.sectionIds.includes(sectionId));
+    if (sectionId) {
+      const bySectionId = results.filter((n) => n.sectionIds.includes(sectionId));
+      if (bySectionId.length > 0) results = bySectionId;
+      // Repli : si aucun narratif pour cette section, afficher tous ceux du statut
+    }
     if (query && query.trim()) {
       const q = query.trim().toLowerCase();
       results = results.filter(
