@@ -1926,3 +1926,19 @@ dialog#repairs-modal::backdrop {
   .inspect-main { width: 100%; }
   .inspect-header { flex-wrap: wrap; gap: 8px; }
 }
+
+/* Boutons de navigation mobile Précédent / Suivant */
+.mobile-page-nav { display: none; }
+@media (max-width: 767px) {
+  .mobile-page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 0 0.75rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border, #e2e8f0);
+  }
+  .mobile-page-nav .btn { flex: 1; text-align: center; }
+  .mobile-page-nav__spacer { flex: 1; }
+}

@@ -6879,9 +6879,46 @@ ${answerLocally(q, ctx)}`;
       mainContent.innerHTML = renderFinalTab(inspection);
       bindFinal(inspection, mainContent);
     }
+    mainContent.insertAdjacentHTML("beforeend", renderMobilePageNav(inspection, tab));
     bindInspectEvents(inspection, mainContent, tab);
     bindChecklist(inspection, sidebar);
     updateAiAssistantContext({ inspection });
+  }
+  function renderMobilePageNav(inspection, tab) {
+    const sections = inspection.sections || [];
+    const nSec = sections.length;
+    const si = (route.checklistSection != null && route.checklistView === "section")
+      ? +route.checklistSection
+      : null;
+    let prevHtml = '<span class="mobile-page-nav__spacer"></span>';
+    let nextHtml = '<span class="mobile-page-nav__spacer"></span>';
+    if (tab === "info") {
+      if (nSec > 0) {
+        nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="checklist-first">Suivant →</button>`;
+      } else {
+        nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="final">Cl\xF4ture →</button>`;
+      }
+    } else if (tab === "checklist") {
+      if (si === null || si === 0) {
+        prevHtml = `<button type="button" class="btn btn--ghost" data-mob-prev="info">← Infos</button>`;
+      } else {
+        prevHtml = `<button type="button" class="btn btn--ghost" data-mob-prev="checklist" data-mob-si="${si - 1}">← Pr\xE9c\xE9dent</button>`;
+      }
+      if (si === null) {
+        nextHtml = nSec > 0
+          ? `<button type="button" class="btn btn--primary" data-mob-next="checklist" data-mob-si="0">Suivant →</button>`
+          : `<button type="button" class="btn btn--primary" data-mob-next="final">Cl\xF4ture →</button>`;
+      } else if (si >= nSec - 1) {
+        nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="final">Cl\xF4ture →</button>`;
+      } else {
+        nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="checklist" data-mob-si="${si + 1}">Suivant →</button>`;
+      }
+    } else if (tab === "final") {
+      prevHtml = nSec > 0
+        ? `<button type="button" class="btn btn--ghost" data-mob-prev="checklist" data-mob-si="${nSec - 1}">← Pr\xE9c\xE9dent</button>`
+        : `<button type="button" class="btn btn--ghost" data-mob-prev="info">← Infos</button>`;
+    }
+    return `<div class="mobile-page-nav">${prevHtml}${nextHtml}</div>`;
   }
   function isImmoNormTemplate(templateId) {
     return templateId === "aibq-preachat" || templateId === "bnq-3009";
@@ -7363,6 +7400,28 @@ ${answerLocally(q, ctx)}`;
           route.checklistSection = null;
         }
         route.tab = nextTab;
+        renderInspect(inspection.id);
+      });
+    });
+    panel.querySelectorAll("[data-mob-prev], [data-mob-next]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        saveCurrentTab(inspection, tab, panel);
+        upsertInspection(inspection);
+        const dest = btn.dataset.mobPrev || btn.dataset.mobNext;
+        const siStr = btn.dataset.mobSi;
+        if (dest === "info") {
+          route.tab = "info";
+        } else if (dest === "final") {
+          route.tab = "final";
+        } else if (dest === "checklist-first") {
+          route.tab = "checklist";
+          route.checklistView = "section";
+          route.checklistSection = 0;
+        } else if (dest === "checklist") {
+          route.tab = "checklist";
+          route.checklistView = "section";
+          route.checklistSection = +(siStr || 0);
+        }
         renderInspect(inspection.id);
       });
     });

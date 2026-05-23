@@ -26,7 +26,7 @@ import { initAiAssistant, openAiAssistant, updateAiAssistantContext } from './ai
 import { aiModelSelectMarkup, bindAiModelSelect, AI_PROVIDERS } from './ai-models.js';
 import { analyzePhotoWithVision } from './ai-vision.js';
 import { openImageEditor } from './image-editor.js';
-import { renderSectionListRail, renderChecklistMainPane, renderChecklistToolbar } from './checklist-views.js';
+import { renderSectionListRail, renderChecklistMainPane, renderChecklistToolbar, stripNumbering } from './checklist-views.js';
 import {
   CHECKLIST_FILTERS,
   sectionProgress,
@@ -547,9 +547,50 @@ function renderInspect(id) {
     bindFinal(inspection, mainContent);
   }
 
+  mainContent.insertAdjacentHTML('beforeend', renderMobilePageNav(inspection, tab));
   bindInspectEvents(inspection, mainContent, tab);
   bindChecklist(inspection, sidebar);
   updateAiAssistantContext({ inspection });
+}
+
+function renderMobilePageNav(inspection, tab) {
+  const sections = inspection.sections || [];
+  const nSec = sections.length;
+  const si = (route.checklistSection != null && route.checklistView === 'section')
+    ? +route.checklistSection
+    : null;
+
+  let prevHtml = '<span class="mobile-page-nav__spacer"></span>';
+  let nextHtml = '<span class="mobile-page-nav__spacer"></span>';
+
+  if (tab === 'info') {
+    if (nSec > 0) {
+      nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="checklist-first">Suivant →</button>`;
+    } else {
+      nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="final">Clôture →</button>`;
+    }
+  } else if (tab === 'checklist') {
+    if (si === null || si === 0) {
+      prevHtml = `<button type="button" class="btn btn--ghost" data-mob-prev="info">← Infos</button>`;
+    } else {
+      prevHtml = `<button type="button" class="btn btn--ghost" data-mob-prev="checklist" data-mob-si="${si - 1}">← Précédent</button>`;
+    }
+    if (si === null) {
+      nextHtml = nSec > 0
+        ? `<button type="button" class="btn btn--primary" data-mob-next="checklist" data-mob-si="0">Suivant →</button>`
+        : `<button type="button" class="btn btn--primary" data-mob-next="final">Clôture →</button>`;
+    } else if (si >= nSec - 1) {
+      nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="final">Clôture →</button>`;
+    } else {
+      nextHtml = `<button type="button" class="btn btn--primary" data-mob-next="checklist" data-mob-si="${si + 1}">Suivant →</button>`;
+    }
+  } else if (tab === 'final') {
+    prevHtml = nSec > 0
+      ? `<button type="button" class="btn btn--ghost" data-mob-prev="checklist" data-mob-si="${nSec - 1}">← Précédent</button>`
+      : `<button type="button" class="btn btn--ghost" data-mob-prev="info">← Infos</button>`;
+  }
+
+  return `<div class="mobile-page-nav">${prevHtml}${nextHtml}</div>`;
 }
 
 function isImmoNormTemplate(templateId) {
@@ -1157,6 +1198,29 @@ function bindInspectEvents(inspection, panel, tab) {
         route.checklistSection = null;
       }
       route.tab = nextTab;
+      renderInspect(inspection.id);
+    });
+  });
+
+  panel.querySelectorAll('[data-mob-prev], [data-mob-next]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      saveCurrentTab(inspection, tab, panel);
+      upsertInspection(inspection);
+      const dest = btn.dataset.mobPrev || btn.dataset.mobNext;
+      const siStr = btn.dataset.mobSi;
+      if (dest === 'info') {
+        route.tab = 'info';
+      } else if (dest === 'final') {
+        route.tab = 'final';
+      } else if (dest === 'checklist-first') {
+        route.tab = 'checklist';
+        route.checklistView = 'section';
+        route.checklistSection = 0;
+      } else if (dest === 'checklist') {
+        route.tab = 'checklist';
+        route.checklistView = 'section';
+        route.checklistSection = +(siStr || 0);
+      }
       renderInspect(inspection.id);
     });
   });
