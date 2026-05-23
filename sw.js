@@ -1,5 +1,5 @@
-const CACHE = 'kzo-inspect-v19';
-const BUNDLE_VERSION = '?v=17';
+const CACHE = 'kzo-inspect-v20';
+const BUNDLE_VERSION = '?v=18';
 
 const ASSETS = [
   './',

@@ -63,7 +63,7 @@ function genericPages(norm) {
 
 function resolveNormPageList(norm) {
   const normName = String(norm || '').toUpperCase();
-  if (normName.includes('AIBQ')) return [...aibqPages(), ...bnqPages(norm).slice(0, 5)];
+  if (normName.includes('AIBQ')) return aibqPages();
   if (normName.includes('BNQ')) return bnqPages(norm);
   return genericPages(norm);
 }

@@ -63,6 +63,12 @@ export function buildLimitationsHtml(inspection) {
 export function buildExpertReferralsReportHtml(inspection) {
   const refs = inspection.expertReferrals || [];
   if (!refs.length) return '';
+  const normName = String(inspection.norme || '').toUpperCase();
+  const normRef = normName.includes('AIBQ')
+    ? 'art. 3 norme de pratique AIBQ'
+    : normName.includes('BNQ')
+      ? 'BNQ 3009-500 section 7'
+      : 'bonne pratique professionnelle';
   const rows = refs
     .map(
       (r) =>
@@ -75,7 +81,7 @@ export function buildExpertReferralsReportHtml(inspection) {
     .join('');
   return `
     <h2>Recommandations d'experts (suivi)</h2>
-    <p class="findings-intro">Selon les constats, consultation d'un spécialiste recommandée (BNQ / bonne pratique).</p>
+    <p class="findings-intro">Selon les constats, consultation d'un spécialiste recommandée (${normRef}).</p>
     <table class="report-table">
       <thead><tr><th>Spécialiste</th><th>Motif</th><th>Urgent</th></tr></thead>
       <tbody>${rows}</tbody>
