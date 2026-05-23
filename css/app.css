@@ -508,16 +508,16 @@ body {
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
-  aspect-ratio: 16 / 10;
-  max-height: 280px;
   box-shadow: var(--shadow);
   border: 2px solid var(--qc-blue-light);
+  background: #111;
 }
 
 .cover-photo-preview__img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
   display: block;
 }
 

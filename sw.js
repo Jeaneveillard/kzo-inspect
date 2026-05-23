@@ -1,4 +1,4 @@
-const CACHE = 'kzo-inspect-v25';
+const CACHE = 'kzo-inspect-v26';
 const BUNDLE_VERSION = '?v=23';
 
 const ASSETS = [
