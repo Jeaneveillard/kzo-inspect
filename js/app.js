@@ -538,13 +538,10 @@ function renderInspect(id) {
   if (tab === 'checklist') {
     const filter = route.checklistFilter || 'all';
     mainContent.innerHTML = renderChecklistToolbar(inspection, filter) + renderChecklistMainPane(inspection, route);
-    bindChecklist(inspection, mainContent);
   } else if (tab === 'info') {
     mainContent.innerHTML = renderInfoTab(inspection);
-    bindInfoForm(inspection, mainContent);
   } else {
     mainContent.innerHTML = renderFinalTab(inspection);
-    bindFinal(inspection, mainContent);
   }
 
   mainContent.insertAdjacentHTML('beforeend', renderMobilePageNav(inspection, tab));
