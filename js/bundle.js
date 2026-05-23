@@ -4415,9 +4415,9 @@ ${answerLocally(q, ctx)}`;
     const activeSi = route2.checklistView === "section" && route2.checklistSection != null && !Number.isNaN(+route2.checklistSection) ? +route2.checklistSection : null;
     return `
     <div class="section-list-header section-list-header--rail">
-      <h3 class="section-list-header__title" style="margin-bottom: 1rem; font-size: 1.1rem;">Sections</h3>
+      <h3 class="section-list-header__title">Sections</h3>
     </div>
-    <ol class="section-list section-list--rail" aria-label="Sections de la checklist" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem;">
+    <ol class="section-list section-list--rail" aria-label="Sections de la checklist">
       ${sectionListRows(i, activeSi)}
     </ol>`;
   }
@@ -6762,19 +6762,19 @@ ${answerLocally(q, ctx)}`;
       </div>
     </section>
 
-    <div class="inspect-layout-split" style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 1rem;">
-      <div class="inspect-sidebar" style="flex: 0 0 300px; position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; padding-right: 1rem; border-right: 1px solid var(--border, #e2e8f0);">
+    <div class="inspect-layout-split">
+      <div class="inspect-sidebar">
         <div class="section-list-header section-list-header--rail">
-          <h3 class="section-list-header__title" style="margin-bottom: 1rem; font-size: 1.1rem;">Dossier</h3>
+          <h3 class="section-list-header__title">Dossier</h3>
         </div>
-        <ol class="section-list section-list--rail" style="list-style: none; padding: 0; margin: 0 0 2rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
+        <ol class="section-list section-list--rail">
           <li class="section-list__item ${tab === "info" ? "section-list__item--active" : ""}">
-            <button type="button" class="section-list__btn tabs__btn" data-tab="info" style="text-align: left; padding: 0.5rem; width: 100%; display: flex; gap: 0.5rem; border: none; background: transparent; cursor: pointer; border-radius: 4px; ${tab === "info" ? "background: #e2e8f0; font-weight: bold;" : ""}">
+            <button type="button" class="section-list__btn tabs__btn ${tab === "info" ? "section-list__btn--active" : ""}" data-tab="info">
               <span class="section-list__title">Informations g\xE9n\xE9rales</span>
             </button>
           </li>
           <li class="section-list__item ${tab === "final" ? "section-list__item--active" : ""}">
-            <button type="button" class="section-list__btn tabs__btn" data-tab="final" style="text-align: left; padding: 0.5rem; width: 100%; display: flex; gap: 0.5rem; border: none; background: transparent; cursor: pointer; border-radius: 4px; ${tab === "final" ? "background: #e2e8f0; font-weight: bold;" : ""}">
+            <button type="button" class="section-list__btn tabs__btn ${tab === "final" ? "section-list__btn--active" : ""}" data-tab="final">
               <span class="section-list__title">Cl\xF4ture & Re\xE7u</span>
             </button>
           </li>
@@ -6783,7 +6783,7 @@ ${answerLocally(q, ctx)}`;
         <div id="checklist-rail-container"></div>
       </div>
 
-      <div class="inspect-main" style="flex: 1; min-width: 0;" id="inspect-main-content">
+      <div class="inspect-main" id="inspect-main-content">
       </div>
     </div>
 

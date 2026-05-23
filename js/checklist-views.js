@@ -382,9 +382,9 @@ export function renderSectionListRail(i, route) {
       : null;
   return `
     <div class="section-list-header section-list-header--rail">
-      <h3 class="section-list-header__title" style="margin-bottom: 1rem; font-size: 1.1rem;">Sections</h3>
+      <h3 class="section-list-header__title">Sections</h3>
     </div>
-    <ol class="section-list section-list--rail" aria-label="Sections de la checklist" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem;">
+    <ol class="section-list section-list--rail" aria-label="Sections de la checklist">
       ${sectionListRows(i, activeSi)}
     </ol>`;
 }

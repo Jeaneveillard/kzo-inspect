@@ -1825,3 +1825,84 @@ dialog#repairs-modal::backdrop {
   font-size: 0.875rem;
   padding: 2rem 0;
 }
+
+/* ── Layout inspection — rail latéral + contenu principal ────── */
+.inspect-layout-split {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+.inspect-sidebar {
+  flex: 0 0 280px;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding-right: 1rem;
+  border-right: 1px solid var(--border, #e2e8f0);
+}
+.inspect-main {
+  flex: 1;
+  min-width: 0;
+}
+.inspect-sidebar .section-list-header__title {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+.section-list--rail {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Responsive mobile : barre nav horizontale au-dessus du contenu */
+@media (max-width: 767px) {
+  .inspect-layout-split {
+    flex-direction: column;
+    gap: 0;
+  }
+  .inspect-sidebar {
+    flex: none;
+    width: 100%;
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    padding-bottom: 6px;
+    margin-bottom: 1rem;
+  }
+  .inspect-sidebar .section-list-header--rail h3 {
+    display: none;
+  }
+  .section-list--rail {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin: 0;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+  }
+  .section-list--rail::-webkit-scrollbar { display: none; }
+  .section-list--rail .section-list__item { flex-shrink: 0; }
+  .section-list--rail .section-list__num { display: none; }
+  .section-list--rail .section-list__title { font-size: 0.78rem; }
+  .section-list--rail .section-list__btn,
+  .section-list--rail .tabs__btn {
+    width: auto;
+    white-space: nowrap;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+  .section-list--rail .section-list__icon { display: none; }
+  .inspect-main { width: 100%; }
+  .inspect-header { flex-wrap: wrap; gap: 8px; }
+}
