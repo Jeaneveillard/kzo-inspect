@@ -1545,15 +1545,15 @@ function bindChecklist(inspection, panel) {
       const item = resolveItem(inspection, si, sub, ii);
       if (!item) return;
       if (!item.photos) item.photos = [];
-      if (item.photos.length >= 4) {
-        toast('Maximum 4 photos par point', 'warn');
+      if (item.photos.length >= 40) {
+        toast('Maximum 40 photos par point', 'warn');
         input.value = '';
         return;
       }
       _uploading = true;
       try {
         const dataUrl = await compressImage(file);
-        if (item.photos.length >= 4) { toast('Maximum 4 photos par point', 'warn'); return; }
+        if (item.photos.length >= 40) { toast('Maximum 40 photos par point', 'warn'); return; }
         item.photos.push(dataUrl);
         upsertInspection(inspection);
         const scrollY = main.scrollTop;
