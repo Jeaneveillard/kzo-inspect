@@ -8806,7 +8806,7 @@ ${answerLocally(q, ctx)}`;
       _nmSectionId = sectionId;
       _nmStatus = status;
       _nmInspection = inspectionRef || null;
-      _nmActiveTab = status || 'non-conforme';
+      _nmActiveTab = (['non-conforme', 'a-corriger', 'conforme'].includes(status)) ? status : 'non-conforme';
       _nmQuery = '';
       document.getElementById('nm-search').value = '';
       const activeTab = dlg.querySelector(`[data-nm-tab="${_nmActiveTab}"]`) || dlg.querySelector('[data-nm-tab="non-conforme"]');
