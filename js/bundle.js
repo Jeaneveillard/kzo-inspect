@@ -6766,7 +6766,7 @@ ${answerLocally(q, ctx)}`;
     if (!slot) return;
     if (route.name === "inspect" && route.id) {
       slot.hidden = false;
-      slot.innerHTML = '<button type="button" class="top-nav__link top-nav__link--save" id="btn-local-save" title="T\xE9l\xE9charger une copie JSON du dossier sur votre ordinateur">&#x1F4BE; Sauvegarder</button>';
+      slot.innerHTML = '<button type="button" class="top-nav__link top-nav__link--save" id="btn-local-save" title="T\xE9l\xE9charge une copie .json dans votre dossier T\xE9l\xE9chargements (sauvegarde locale)">&#x1F4BE; Sauvegarder</button>';
     } else {
       slot.hidden = true;
       slot.innerHTML = "";
@@ -7617,7 +7617,7 @@ ${answerLocally(q, ctx)}`;
         upsertInspection(inspection);
         try {
           exportInspectionBackup(inspection, loadProfile());
-          toast("Dossier sauvegard\xE9 sur votre ordinateur \u2713", "success");
+          toast("Fichier .json enregistr\xE9 dans votre dossier T\xE9l\xE9chargements \u2713", "success");
           if (localAutoSaveTimer === null) {
             startLocalAutoSave(inspection);
             toast("Auto-sauvegarde locale activ\xE9e (toutes les 2 min) \uD83D\uDCBE", "info");
@@ -8068,7 +8068,13 @@ ${answerLocally(q, ctx)}`;
           const dataUrl = await compressImage(file);
           if (item.photos.length >= 45) { toast("Maximum 45 photos par point", "warn"); return; }
           item.photos.push(dataUrl);
-          upsertInspection(inspection);
+          try {
+            upsertInspection(inspection);
+          } catch (storageErr) {
+            item.photos.pop(); // rollback si quota dépassé
+            toast("Espace de stockage plein — supprimez des photos ou exportez le dossier.", "error");
+            return;
+          }
           const scrollY = main.scrollTop;
           route.tab = "checklist";
           renderInspect(inspection.id);
@@ -8753,10 +8759,10 @@ ${answerLocally(q, ctx)}`;
                 if (item) {
                   const existing = (item.inspectorComment || '').trim();
                   item.inspectorComment = existing ? existing + '\n\n' + n.text : n.text;
-                  const panel = document.getElementById('inspect-panel');
+                  const panel = document.getElementById('inspect-main-content');
                   const ta = panel && panel.querySelector('[data-inspector-comment][data-si="' + _nmSi + '"][data-sub="' + _nmSub + '"][data-ii="' + _nmIi + '"]');
                   if (ta) ta.value = item.inspectorComment;
-                  scheduleAutosave(inspection, 'checklist', panel);
+                  scheduleAutosave(inspection, 'checklist', panel || document.getElementById('inspect-main-content'));
                 }
               }
             } catch(err) {
