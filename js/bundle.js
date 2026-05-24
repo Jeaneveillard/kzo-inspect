@@ -2145,7 +2145,7 @@
       reader.readAsArrayBuffer(file.slice(0, 131072));
     });
   }
-  function compressImage(file, maxW = 1200, quality = 0.72) {
+  function compressImage(file, maxW = 1000, quality = 0.65) {
     return readExifOrientation(file).then(function(orientation) {
       return new Promise(function(resolve, reject) {
         var reader = new FileReader();
