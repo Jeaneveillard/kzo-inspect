@@ -8821,6 +8821,23 @@ ${answerLocally(q, ctx)}`;
     };
   }
 
+  function initPhotoLightbox() {
+    const dlg = document.createElement('dialog');
+    dlg.className = 'photo-lightbox';
+    dlg.innerHTML = '<button type="button" class="photo-lightbox__close" aria-label="Fermer">\xD7</button><img class="photo-lightbox__img" src="" alt="" />';
+    document.body.appendChild(dlg);
+    const img = dlg.querySelector('.photo-lightbox__img');
+    dlg.querySelector('.photo-lightbox__close').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+    document.addEventListener('click', (e) => {
+      const thumb = e.target.closest('.photo-thumb img');
+      if (!thumb) return;
+      img.src = thumb.src;
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else dlg.setAttribute('open', '');
+    });
+  }
+
   function initRepairsModal() {
     function rmEscHtml(s) {
       return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -8879,6 +8896,7 @@ ${answerLocally(q, ctx)}`;
   initAiAssistant();
   initNarrativesModal();
   initRepairsModal();
+  initPhotoLightbox();
   render();
   window.__kzoInspectBooted = true;
   if (typeof window.__kzoInspectReady === "function") window.__kzoInspectReady();
