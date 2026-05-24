@@ -4735,12 +4735,19 @@ ${answerLocally(q, ctx)}`;
     aliases.forEach(([k, v]) => { m[k] = m[v]; });
     return m;
   })();
+  var SECTION_NOTICES = {
+    'aibq-v-i': "L’inspection est limit\xE9e aux \xE9l\xE9ments structuraux accessibles \xE0 la vue. Les rev\xEAtements de murs int\xE9rieurs et ext\xE9rieurs, les faux-plafonds et les planchers finis dissimulent en tout ou en partie les \xE9l\xE9ments porteurs. L’inspecteur ne peut se prononcer sur les composantes cach\xE9es.",
+    'bat-structure': "L’inspection est limit\xE9e aux \xE9l\xE9ments structuraux accessibles \xE0 la vue. Les rev\xEAtements de murs int\xE9rieurs et ext\xE9rieurs, les faux-plafonds et les planchers finis dissimulent en tout ou en partie les \xE9l\xE9ments porteurs. L’inspecteur ne peut se prononcer sur les composantes cach\xE9es."
+  };
+
   function renderSectionContent(sec, si, filter, inspection) {
     normalizeSection(sec);
     const groups = getSectionItemGroups(sec);
     if (!groups.length) {
       return '<p class="section-list__empty">Aucun point dans cette section.</p>';
     }
+    const noticeText = SECTION_NOTICES[sec.id];
+    const noticeBlock = noticeText ? `<div class="section-notice section-notice--info"><span class="section-notice__icon">⚠️</span><p class="section-notice__text">${noticeText}</p></div>` : '';
     const matDef = SECTION_MATERIAL_OPTIONS[sec.id];
     const selectedMat = inspection?.sectionMateriau?.[sec.id] || "";
     const materiauBlock = matDef ? `
@@ -4752,7 +4759,7 @@ ${answerLocally(q, ctx)}`;
         </select>
         ${selectedMat ? `<span class="section-materiau__badge">${escapeHtml2(selectedMat)}</span>` : ""}
       </div>` : "";
-    return materiauBlock + groups.map(({ subIndex, title, items, id }) => {
+    return noticeBlock + materiauBlock + groups.map(({ subIndex, title, items, id }) => {
       const itemsHtml = items.map((item, ii) => renderChecklistItem(item, si, subIndex, ii, filter, sec, id)).join("");
       if (!itemsHtml.trim()) return "";
       const subMatDef = id ? SECTION_MATERIAL_OPTIONS[id] : null;
@@ -5783,6 +5790,7 @@ ${answerLocally(q, ctx)}`;
       vertical-align: top;
     }
     .report-compact-table th { background: #f5f7fa; }
+    .report-section-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: 10px 14px; font-size: 9.5pt; line-height: 1.5; color: #5d4037; margin-bottom: 14px; }
     .report-appendix-prose { font-size: 10.5pt; line-height: 1.6; color: #37474f; }
     .report-appendix-prose h3 { font-size: 11pt; color: #0d47a1; margin: 16px 0 8px; }
     .report-appendix-prose p { margin: 0 0 10px; }
@@ -6060,12 +6068,15 @@ ${answerLocally(q, ctx)}`;
   }
 
   function buildSectionIntroPage(sec, pageNum, dossier) {
+    const noticeText = SECTION_NOTICES[sec.id];
+    const noticeHtml = noticeText ? `<div class="report-section-notice"><strong>Limite d’inspection — \xE9l\xE9ments cach\xE9s :</strong> ${escapeHtml(noticeText)}</div>` : '';
     return `
     <div id="report-sec-${escapeHtml(sec.id)}" class="report-print-page report-print-page--section">
       <div class="report-print-page__head">
         <h2>${escapeHtml(stripNumbering(sec.title))}</h2>
         <p>Détail des constats — section suivante</p>
       </div>
+      ${noticeHtml}
       <p class="report-appendix-prose">Les points évalués de cette section sont documentés aux pages suivantes. Les constats non conformes ou à corriger font l'objet d'une fiche détaillée; les points conformes ou sans objet sont regroupés en fin de section.</p>
       ${pageFooter(pageNum, dossier)}
     </div>`;

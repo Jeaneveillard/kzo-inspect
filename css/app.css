@@ -960,6 +960,30 @@ body {
   resize: vertical;
 }
 
+.section-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.section-notice--info {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  color: #6d4c00;
+}
+.section-notice__icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+  margin-top: 1px;
+}
+.section-notice__text {
+  margin: 0;
+}
+
 .photo-strip {
   display: flex;
   flex-wrap: wrap;
