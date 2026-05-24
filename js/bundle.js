@@ -1165,7 +1165,16 @@
   function loadInspections() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const list = raw ? JSON.parse(raw) : [];
+      let dirty = false;
+      for (const i of list) {
+        if (i.templateLabel === "Inspection pr\xE9achat AIBQ") {
+          i.templateLabel = "Inspection pr\xE9achat";
+          dirty = true;
+        }
+      }
+      if (dirty) saveInspections(list);
+      return list;
     } catch {
       return [];
     }
@@ -1394,7 +1403,7 @@
     },
     "aibq-preachat": {
       id: "aibq-preachat",
-      label: "Inspection pr\xE9achat AIBQ",
+      label: "Inspection pr\xE9achat",
       norme: "Norme de pratique AIBQ (pr\xE9achat r\xE9sidentiel)",
       icon: "\u{1F3E1}",
       description: "Norme compl\xE8te : chapitres I \xE0 V, 11 syst\xE8mes, rapport, annexe I (arts 1-60).",
@@ -3438,6 +3447,13 @@ ${answerLocally(q, ctx)}`;
       text: "Les gouttières sont absentes, décrochées ou obstruées sur une partie ou la totalité du pourtour du toit. Cette situation entraîne un déversement des eaux de ruissellement directement en pied de mur, contribuant à la saturation du sol adjacent aux fondations et à la détérioration des matériaux de finition. L'installation ou la remise en état complète du système de gouttières et de descentes pluviales est recommandée.",
     },
     {
+      id: 'pn-toiture-ac-gouttiere-entretien',
+      sectionIds: ['walk-toiture', 'bnq-w-toiture', 'bat-toiture'],
+      status: 'a-corriger',
+      title: 'Gouttières — entretien ou réalignement requis',
+      text: "Les gouttières présentent des anomalies mineures à modérées, notamment une accumulation de débris, un décrochement partiel ou une inclinaison insuffisante sur certaines sections. Ces conditions réduisent l'efficacité du système de collecte et d'évacuation des eaux de toiture, pouvant entraîner des débordements localisés en pied de mur. Un nettoyage complet des gouttières et descentes, le réalignement des sections mal inclinées ainsi que la vérification des attaches sont recommandés avant la saison des pluies.",
+    },
+    {
       id: 'pn-toiture-ac-bardeau-age',
       sectionIds: ['walk-toiture', 'bnq-w-toiture', 'bat-toiture'],
       status: 'a-corriger',
@@ -3594,6 +3610,41 @@ ${answerLocally(q, ctx)}`;
       title: 'Fenêtres et portes en bon état',
       text: "L'inspection des fenêtres et des portes extérieures ne révèle aucune anomalie significative. Les vitrages sont intacts, les cadres sont en bon état et les coupe-froid sont présents et fonctionnels. L'étanchéité de l'enveloppe aux ouvertures est jugée satisfaisante.",
     },
+    {
+      id: 'pn-ouv-nc-garde-corps-non-conforme',
+      sectionIds: ['walk-ouvertures', 'bnq-w-ouvertures', 'bat-ouvertures'],
+      status: 'non-conforme',
+      title: 'Garde-corps non conforme — hauteur ou solidité insuffisante',
+      text: "L'inspection révèle que des garde-corps présents sur les balcons, terrasses ou escaliers extérieurs ne satisfont pas aux exigences minimales du Code de construction du Québec, soit par une hauteur inférieure à 107 cm (42 po), soit par un espacement entre barreaux supérieur à 10 cm (4 po), ou une fixation insuffisante. Ces déficiences constituent un risque de chute sérieux. La mise aux normes des garde-corps défaillants est requise.",
+    },
+    {
+      id: 'pn-ouv-nc-garage-capteur-absent',
+      sectionIds: ['walk-ouvertures', 'bnq-w-ouvertures', 'bat-ouvertures'],
+      status: 'non-conforme',
+      title: 'Porte de garage motorisée — dispositif de sécurité absent ou défaillant',
+      text: "La porte de garage motorisée ne dispose pas de capteur de renversement ou de photocellule fonctionnel. Ces dispositifs sont essentiels pour prévenir l'écrasement de personnes ou d'objets lors de la fermeture de la porte. La vérification, le réglage ou le remplacement du système de sécurité par un technicien qualifié est requis avant la mise en service.",
+    },
+    {
+      id: 'pn-ouv-nc-marches-ext-deteriorees',
+      sectionIds: ['walk-ouvertures', 'bnq-w-ouvertures', 'bat-ouvertures'],
+      status: 'non-conforme',
+      title: 'Marches extérieures détériorées — risque de chute',
+      text: "Les marches d'accès extérieures présentent des fissures, des soulèvements, des ébréchures ou un revêtement antidérapant usé. Ces anomalies constituent un risque de glissade ou de trébuchement, particulièrement en période hivernale ou lors de pluie. La réfection ou le remplacement des marches défaillantes est recommandé dans un délai rapproché.",
+    },
+    {
+      id: 'pn-ouv-ac-coupe-froid-use',
+      sectionIds: ['walk-ouvertures', 'bnq-w-ouvertures', 'bat-ouvertures'],
+      status: 'a-corriger',
+      title: 'Coupe-froid portes extérieures — remplacement recommandé',
+      text: "Le coupe-froid et les joints de bas de porte des entrées extérieures sont usés ou endommagés, entraînant des courants d'air, des infiltrations d'eau sous les portes et des pertes d'énergie. Le remplacement des coupe-froids et joints défectueux est une intervention simple et peu coûteuse permettant d'améliorer le confort thermique et l'étanchéité de l'enveloppe.",
+    },
+    {
+      id: 'pn-ouv-c-2',
+      sectionIds: ['walk-ouvertures', 'bnq-w-ouvertures', 'bat-ouvertures'],
+      status: 'conforme',
+      title: 'Accès et ouvertures extérieures — état général satisfaisant',
+      text: "L'inspection des accès extérieurs, incluant les marches, les garde-corps et la porte de garage, ne révèle aucune anomalie significative. Les accès sont sécuritaires, les garde-corps sont solides et conformes, et les portes fonctionnent normalement. Aucune intervention corrective n'est requise.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // PLOMBERIE EXTÉRIEURE
@@ -3641,6 +3692,34 @@ ${answerLocally(q, ctx)}`;
       title: 'Plomberie extérieure fonctionnelle — aucune anomalie',
       text: "L'inspection de la plomberie extérieure ne révèle aucune anomalie significative. Les descentes pluviales sont bien fixées et évacuent les eaux loin du bâtiment. Les robinets extérieurs sont fonctionnels et adaptés au climat. Aucune intervention n'est requise dans l'immédiat.",
     },
+    {
+      id: 'pn-plomb-ext-nc-robinet-arret-inaccessible',
+      sectionIds: ['walk-plomb-ext', 'bnq-w-plomb-ext', 'bat-plomb-ext'],
+      status: 'non-conforme',
+      title: 'Robinet d\'arrêt principal — inaccessible ou défaillant',
+      text: "Le robinet d'arrêt principal de l'alimentation en eau est inaccessible, obstrué ou en mauvais état de fonctionnement. En cas de fuite ou d'urgence, l'impossibilité d'interrompre rapidement l'alimentation en eau peut entraîner des dommages importants au bâtiment. La remise en état ou le dégagement immédiat du robinet d'arrêt est fortement recommandé.",
+    },
+    {
+      id: 'pn-plomb-ext-nc-descente-deconnectee',
+      sectionIds: ['walk-plomb-ext', 'bnq-w-plomb-ext', 'bat-plomb-ext'],
+      status: 'non-conforme',
+      title: 'Descente pluviale déconnectée ou déversant en fondation',
+      text: "Une ou plusieurs descentes pluviales sont déconnectées, manquantes ou déversent directement en pied de fondation sans diffuseur de sortie. Cette condition concentre un volume significatif d'eaux de toiture aux points les plus vulnérables de l'enveloppe. Des prolongements rigides éloignant l'eau d'au moins 1,5 m des fondations sont requis.",
+    },
+    {
+      id: 'pn-plomb-ext-ac-clapet-antiretour',
+      sectionIds: ['walk-plomb-ext', 'bnq-w-plomb-ext', 'bat-plomb-ext'],
+      status: 'a-corriger',
+      title: 'Clapet antiretour absent — protection contre le refoulement recommandée',
+      text: "L'alimentation du système d'irrigation ou du robinet extérieur ne comporte pas de dispositif antiretour visible. Cette protection est recommandée pour prévenir la contamination du réseau d'eau potable par siphonnage lors d'une chute de pression soudaine. L'installation d'un clapet antiretour agréé est suggérée lors d'une prochaine intervention sur la plomberie extérieure.",
+    },
+    {
+      id: 'pn-plomb-ext-c-2',
+      sectionIds: ['walk-plomb-ext', 'bnq-w-plomb-ext', 'bat-plomb-ext'],
+      status: 'conforme',
+      title: 'Évacuation des eaux extérieures — système complet et fonctionnel',
+      text: "Le système d'évacuation des eaux pluviales, incluant les gouttières, descentes et diffuseurs, est complet, bien fixé et dirige efficacement les eaux loin des fondations. Les robinets extérieurs fonctionnent normalement et sont protégés contre le gel. Aucune anomalie n'a été détectée.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // ÉLECTRICITÉ EXTÉRIEURE
@@ -3687,6 +3766,34 @@ ${answerLocally(q, ctx)}`;
       status: 'conforme',
       title: 'Électricité extérieure — état satisfaisant',
       text: "L'inspection des composantes électriques extérieures ne révèle aucune anomalie notable. L'entrée de service est étanchéifiée, les luminaires et prises extérieures sont conformes à l'usage extérieur. Aucune intervention corrective n'est requise dans l'immédiat.",
+    },
+    {
+      id: 'pn-elec-ext-nc-fils-trop-bas',
+      sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
+      status: 'non-conforme',
+      title: 'Fils électriques aériens — hauteur insuffisante au-dessus du sol',
+      text: "Les fils électriques aériens de l'entrée de service ne respectent pas les hauteurs minimales requises au-dessus du sol, des allées ou des toits accessibles. Cette condition présente un risque d'électrocution ou de contact accidentel avec les fils sous tension. Une mise aux normes par le distributeur d'électricité ou un maître électricien certifié est requise.",
+    },
+    {
+      id: 'pn-elec-ext-nc-boitier-service-endommage',
+      sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
+      status: 'non-conforme',
+      title: "Boîtier de service extérieur endommagé — risque d'infiltration",
+      text: "Le boîtier de service électrique extérieur présente des dommages physiques (couvercle manquant ou cassé, corrosion avancée) permettant l'infiltration d'eau sur les composants sous tension. Cette condition est dangereuse et requiert le remplacement ou la mise aux normes du boîtier par un électricien qualifié sans délai.",
+    },
+    {
+      id: 'pn-elec-ext-ac-protection-thermopompe',
+      sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
+      status: 'a-corriger',
+      title: 'Alimentation thermopompe — protection mécanique insuffisante',
+      text: "Le câblage d'alimentation de l'unité extérieure de la thermopompe n'est pas adéquatement protégé entre le boîtier et l'appareil. Une protection par conduit rigide ou flexible métallique est recommandée pour éviter les dommages causés par les rongeurs, les débroussailleuses ou les impacts accidentels.",
+    },
+    {
+      id: 'pn-elec-ext-c-2',
+      sectionIds: ['walk-elec-ext', 'bnq-w-elec-ext', 'bat-elec-ext'],
+      status: 'conforme',
+      title: 'Branchement électrique extérieur — installation soignée et conforme',
+      text: "L'entrée de service, le mât et les composantes électriques extérieures sont en bon état. La mise à la terre est visible, le boîtier de service est étanche et les fils sont correctement supportés à hauteur réglementaire. Les prises et luminaires extérieurs sont conformes à l'usage extérieur. Aucune anomalie n'a été détectée.",
     },
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -3741,6 +3848,34 @@ ${answerLocally(q, ctx)}`;
       status: 'conforme',
       title: 'Structure intérieure — état satisfaisant',
       text: "L'inspection visuelle des éléments de structure accessibles ne révèle aucune anomalie significative. Les solives, poutres et poteaux d'appui sont en bon état apparent, sans déflexion excessive ni signe de dégradation. Aucune intervention corrective n'est requise dans l'immédiat.",
+    },
+    {
+      id: 'pn-struct-nc-infiltration-combles',
+      sectionIds: ['aibq-v-i', 'aibq-v-i-17', 'bnq-12-2'],
+      status: 'non-conforme',
+      title: "Traces d'infiltration sur éléments structurels — combles ou sous-sol",
+      text: "Des traces d'infiltration active ou passée sont observées sur les éléments structurels des combles ou du sous-sol (taches brunâtres, bois décoloré, pourriture amorcée). Ces dommages indiquent une source d'eau non maîtrisée qui compromet l'intégrité à long terme des composants structurels. La localisation et la correction de la source d'infiltration ainsi que l'évaluation de l'étendue des dommages structurels sont requises.",
+    },
+    {
+      id: 'pn-struct-nc-ferme-endommagee',
+      sectionIds: ['aibq-v-i', 'aibq-v-i-17', 'bnq-12-2'],
+      status: 'non-conforme',
+      title: 'Ferme de toit endommagée ou modifiée sans renforcement',
+      text: "Une ou plusieurs fermes de toit présentent des entailles, des coupes non autorisées ou des modifications sans contreventement adéquat. Ces altérations réduisent la capacité portante de la structure de toit et peuvent entraîner une déflexion progressive de la couverture. Une évaluation par un ingénieur en structure est requise avant d'entreprendre tout travaux dans les combles.",
+    },
+    {
+      id: 'pn-struct-ac-deformation-plancher',
+      sectionIds: ['aibq-v-i', 'aibq-v-i-17', 'bnq-12-2'],
+      status: 'a-corriger',
+      title: 'Déformation de plancher — surveillance recommandée',
+      text: "Un léger affaissement ou une déflexion du plancher a été observé dans certaines zones. Bien que ne compromettant pas immédiatement la sécurité, ce mouvement mérite d'être surveillé dans le temps. Si la déflexion progresse ou si des craquements importants apparaissent, une évaluation par un professionnel compétent sera nécessaire.",
+    },
+    {
+      id: 'pn-struct-c-2',
+      sectionIds: ['aibq-v-i', 'aibq-v-i-17', 'bnq-12-2'],
+      status: 'conforme',
+      title: 'Charpente et structure — bon état général',
+      text: "L'inspection de la structure accessible, incluant les solives, poutres, poteaux et fermes visibles, ne révèle aucune anomalie structurelle significative. Les éléments porteurs sont en bon état, sans signe de déformation excessive, de pourriture ou de dommages par insectes xylophages. La structure est jugée conforme.",
     },
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -3864,6 +3999,41 @@ ${answerLocally(q, ctx)}`;
       title: 'Électricité intérieure — état satisfaisant',
       text: "L'inspection du système électrique intérieur ne révèle aucune anomalie majeure. Le panneau de distribution est propre, les disjoncteurs sont bien calibrés et fonctionnels, et le câblage visible est en bon état. Aucune intervention corrective n'est requise dans l'immédiat.",
     },
+    {
+      id: 'pn-elec-int-nc-gfci-absent',
+      sectionIds: ['aibq-v-v', 'bnq-12-4'],
+      status: 'non-conforme',
+      title: 'GFCI absente — zones humides non protégées',
+      text: "Des prises de courant situées dans des zones humides (salle de bain, cuisine, garage, extérieur) ne sont pas protégées par un disjoncteur de fuite à la terre (GFCI/DDFT). Cette protection est requise dans ces zones pour prévenir les risques d'électrocution en présence d'humidité. L'installation de prises GFCI ou de disjoncteurs GFCI protégeant ces circuits est requise.",
+    },
+    {
+      id: 'pn-elec-int-nc-tableau-non-identifie',
+      sectionIds: ['aibq-v-v', 'bnq-12-4'],
+      status: 'non-conforme',
+      title: 'Panneau non identifié — disjoncteurs sans étiquette',
+      text: "Les disjoncteurs du panneau de distribution électrique ne sont pas identifiés ou le sont de façon incomplète, rendant impossible l'identification rapide des circuits en cas d'urgence ou d'intervention électrique. Un étiquetage complet et précis de tous les disjoncteurs est requis pour assurer la sécurité des occupants et faciliter les interventions des électriciens.",
+    },
+    {
+      id: 'pn-elec-int-ac-filage-apparent',
+      sectionIds: ['aibq-v-v', 'bnq-12-4'],
+      status: 'a-corriger',
+      title: 'Filage électrique apparent non protégé',
+      text: "Des conducteurs électriques sont visibles sans protection adéquate dans des zones accessibles du sous-sol ou du grenier. Bien que cette situation soit souvent tolérée dans les espaces non finis, tout câblage dans les zones de passage ou à portée de main devrait être protégé par un conduit ou retiré. Une inspection par un électricien est recommandée pour évaluer la conformité de l'installation.",
+    },
+    {
+      id: 'pn-elec-int-ac-amperage-limite',
+      sectionIds: ['aibq-v-v', 'bnq-12-4'],
+      status: 'a-corriger',
+      title: 'Service électrique 60 A — capacité limitée',
+      text: "Le service électrique entrant dans le bâtiment est de 60 ampères, ce qui est la capacité minimale historique pour les habitations unifamiliales. Cette capacité peut s'avérer insuffisante pour les usages modernes, notamment avec l'ajout d'une borne de recharge pour véhicule électrique, de cuisinières électriques haute puissance ou de systèmes de climatisation. Une mise à niveau à 200 A est recommandée si des équipements supplémentaires sont envisagés.",
+    },
+    {
+      id: 'pn-elec-int-c-2',
+      sectionIds: ['aibq-v-v', 'bnq-12-4'],
+      status: 'conforme',
+      title: 'Installation électrique — mise à jour récente et conforme',
+      text: "Le système électrique intérieur a fait l'objet d'une mise à jour récente. Le panneau de distribution est propre, correctement identifié et équipé de disjoncteurs calibrés adéquatement. Le câblage visible est du type à 3 fils avec mise à la terre et aucune anomalie n'a été détectée lors de l'inspection.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // CHAUFFAGE
@@ -3918,6 +4088,27 @@ ${answerLocally(q, ctx)}`;
       title: 'Chauffage en bon état de fonctionnement',
       text: "L'inspection du système de chauffage révèle un appareil en bon état, fonctionnant correctement lors des tests effectués. Les conduits visibles sont intègres et la distribution de chaleur semble uniforme. Aucune anomalie n'a été détectée lors de l'inspection.",
     },
+    {
+      id: 'pn-chauf-nc-tuyau-gaz-corrosion',
+      sectionIds: ['aibq-v-vi', 'bnq-12-5'],
+      status: 'non-conforme',
+      title: 'Tuyauterie de gaz corrodée — risque de fuite',
+      text: "La tuyauterie de gaz naturel ou de propane présente des signes de corrosion visibles, notamment une coloration orangée sur les raccords ou les surfaces des tuyaux. La corrosion réduit l'intégrité de la tuyauterie et peut entraîner des fuites de gaz avec risque d'explosion ou d'incendie. Une inspection et une correction par un plombier-gazier certifié sont requises sans délai.",
+    },
+    {
+      id: 'pn-chauf-nc-absence-entretien',
+      sectionIds: ['aibq-v-vi', 'bnq-12-5'],
+      status: 'non-conforme',
+      title: "Appareil de chauffage — défaut d'entretien documenté",
+      text: "Le système de chauffage présente des signes évidents de manque d'entretien prolongé : filtre complètement obstrué, brûleur encrassé, ou conduits de distribution obstrués par des dépôts. Cet état affecte directement l'efficacité énergétique et la sécurité de l'appareil. Une visite de remise en état par un technicien certifié et la mise en place d'un contrat d'entretien annuel sont requis.",
+    },
+    {
+      id: 'pn-chauf-c-2',
+      sectionIds: ['aibq-v-vi', 'bnq-12-5'],
+      status: 'conforme',
+      title: 'Système de chauffage récent — efficacité élevée',
+      text: "Le système de chauffage est de fabrication récente et est équipé d'un appareil à haute efficacité. Les conduits et raccordements sont en bon état et l'entretien semble avoir été effectué régulièrement. La durée de vie résiduelle de l'appareil est estimée significative. Aucune anomalie n'a été détectée lors de l'inspection.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // CLIMATISATION
@@ -3964,6 +4155,34 @@ ${answerLocally(q, ctx)}`;
       status: 'conforme',
       title: 'Climatisation — fonctionnelle, aucune anomalie',
       text: "L'inspection du système de climatisation révèle un appareil en bon état de fonctionnement. Les unités intérieure et extérieure sont bien entretenues, les lignes réfrigérantes sont isolées et l'appareil démarrait normalement lors du test. Aucune intervention n'est requise dans l'immédiat.",
+    },
+    {
+      id: 'pn-clim-nc-condenseur-obstrue',
+      sectionIds: ['aibq-v-vii'],
+      status: 'non-conforme',
+      title: 'Condenseur extérieur obstrué — échange thermique compromis',
+      text: "L'unité de condensation extérieure du système de climatisation est obstruée par de la végétation, des débris ou une structure adjacente, réduisant de façon significative le flux d'air à travers les ailettes de l'échangeur. Cette obstruction diminue l'efficacité du système, accélère l'usure du compresseur et peut entraîner une défaillance prématurée. Le dégagement de la zone autour du condenseur est requis, avec un espace libre minimum de 60 cm sur tous les côtés.",
+    },
+    {
+      id: 'pn-clim-nc-systeme-inoperant',
+      sectionIds: ['aibq-v-vii'],
+      status: 'non-conforme',
+      title: "Système de climatisation non fonctionnel lors de l'inspection",
+      text: "Le système de climatisation n'a pas pu être mis en marche lors de l'inspection ou n'a pas produit de froid mesurable. L'appareil semble hors service, que ce soit en raison d'une défaillance électrique, d'un compresseur défaillant ou d'une absence de réfrigérant. Une évaluation par un technicien en réfrigération est requise afin de déterminer si la réparation ou le remplacement de l'unité est justifié.",
+    },
+    {
+      id: 'pn-clim-ac-drain-condensation',
+      sectionIds: ['aibq-v-vii'],
+      status: 'a-corriger',
+      title: 'Drain de condensation — entretien recommandé',
+      text: "Le drain de condensation de l'unité intérieure de climatisation présente des signes d'encrassement ou de mauvaise inclinaison, ce qui peut entraîner un débordement de la cuvette et des dommages par l'eau aux matériaux environnants. Un nettoyage du drain et la vérification de son inclinaison vers l'évacuation sont recommandés lors du prochain entretien saisonnier.",
+    },
+    {
+      id: 'pn-clim-c-2',
+      sectionIds: ['aibq-v-vii'],
+      status: 'conforme',
+      title: 'Climatisation — système entretenu et performant',
+      text: "Le système de climatisation, incluant les unités intérieure et extérieure, est en bon état. L'unité extérieure est bien dégagée, les lignes réfrigérantes sont isolées et le système a démarré normalement lors du test. Des traces d'entretien récent sont visibles. Aucune intervention n'est requise dans l'immédiat.",
     },
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -4026,6 +4245,34 @@ ${answerLocally(q, ctx)}`;
       title: 'Intérieur rénové — finitions récentes, bon état',
       text: "L'intérieur du bâtiment a fait l'objet de rénovations récentes qui ont substantiellement amélioré l'état des finitions. Les murs, plafonds et planchers sont en bon état et aucune infiltration ni déformation n'a été observée. Aucune intervention n'est requise dans l'immédiat.",
     },
+    {
+      id: 'pn-int-nc-joints-etancheite-defaillants',
+      sectionIds: ['aibq-v-viii', 'bnq-12-6'],
+      status: 'non-conforme',
+      title: "Joints d'étanchéité défaillants — risque d'infiltration",
+      text: "Les joints de silicone ou de calfeutrage autour des baignoires, douches ou plans de travail de cuisine présentent des fissures, des décollements ou des moisissures avancées. Des joints défaillants permettent à l'eau de s'infiltrer dans les cavités murales, causant des dommages progressifs aux matériaux et favorisant le développement de moisissures. Le remplacement complet des joints dans toutes les zones affectées est requis.",
+    },
+    {
+      id: 'pn-int-ac-carrelage-fissure',
+      sectionIds: ['aibq-v-viii', 'bnq-12-6'],
+      status: 'a-corriger',
+      title: 'Carrelage fissuré ou décollé — zones à surveiller',
+      text: "Quelques carreaux du revêtement de sol ou mural présentent des fissures ou des signes de décollement. Bien que cela soit sans conséquence immédiate sur la structure, les carreaux fissurés peuvent permettre à l'humidité de s'infiltrer sous le revêtement et d'endommager le support. Le remplacement des carreaux défectueux et la vérification du support sont recommandés.",
+    },
+    {
+      id: 'pn-int-ac-peinture-decallee',
+      sectionIds: ['aibq-v-viii', 'bnq-12-6'],
+      status: 'a-corriger',
+      title: 'Peinture décollée ou cloquée — humidité sous-jacente',
+      text: "La peinture sur certaines surfaces présente des décollements ou des cloques, ce qui peut indiquer une infiltration d'humidité dans le substrat. Bien que la dégradation de la peinture seule ne constitue pas une urgence, ce symptôme mérite investigation pour écarter une source d'humidité active. La correction de la source d'humidité, si elle est présente, doit précéder tout travaux de peinture.",
+    },
+    {
+      id: 'pn-int-c-3',
+      sectionIds: ['aibq-v-viii', 'bnq-12-6'],
+      status: 'conforme',
+      title: 'Espaces intérieurs — finitions soignées et bien entretenues',
+      text: "L'inspection des espaces intérieurs révèle des finitions en bon état, bien entretenues et sans anomalie notable. Les revêtements de sol et de mur sont intacts, les portes et fenêtres fonctionnent normalement et aucune trace d'infiltration ni de dommages par l'humidité n'a été observée. L'état intérieur général est excellent.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // ISOLATION / COMBLES
@@ -4073,6 +4320,34 @@ ${answerLocally(q, ctx)}`;
       title: 'Isolation — épaisseur adéquate, bon état',
       text: "L'inspection du comble révèle une isolation en bon état, d'épaisseur adéquate et uniformément répartie. L'isolant est sec, exempt de signes d'infestation et correctement installé. La performance thermique de la toiture est jugée satisfaisante.",
     },
+    {
+      id: 'pn-isol-nc-vermiculite',
+      sectionIds: ['aibq-v-ix', 'bnq-12-7'],
+      status: 'non-conforme',
+      title: 'Vermiculite dans le comble — amiante possible',
+      text: "L'isolant dans le comble semble être de la vermiculite, un matériau granuleux léger utilisé fréquemment entre les années 1940 et 1990. Une grande proportion de la vermiculite commercialisée au Canada provenait de mines contaminées à l'amiante. Aucune manipulation de cet isolant ne doit être effectuée avant une analyse en laboratoire confirmant ou infirmant la présence d'amiante. Des précautions strictes doivent être appliquées lors de tout accès au comble.",
+    },
+    {
+      id: 'pn-isol-nc-vide-sanitaire-humide',
+      sectionIds: ['aibq-v-ix', 'bnq-12-7'],
+      status: 'non-conforme',
+      title: 'Vide sanitaire humide — isolation et vapeur compromis',
+      text: "Le vide sanitaire présente une humidité élevée, de l'eau stagnante ou des signes de condensation importants sur les surfaces. Cette condition dégrade l'isolant thermique, favorise la moisissure sur les solives et peut entraîner des problèmes de qualité d'air dans l'ensemble du bâtiment. L'installation d'un pare-vapeur au sol, l'amélioration du drainage et la ventilation adéquate du vide sanitaire sont requis.",
+    },
+    {
+      id: 'pn-isol-ac-isolation-tuyauterie',
+      sectionIds: ['aibq-v-ix', 'bnq-12-7'],
+      status: 'a-corriger',
+      title: 'Tuyauterie non isolée dans les espaces froids',
+      text: "Les tuyaux d'alimentation en eau passant dans le vide sanitaire ou dans des espaces non chauffés ne sont pas adéquatement isolés. Ces tuyaux sont susceptibles de geler lors des périodes de grand froid, entraînant des bris coûteux. L'isolation des tuyaux exposés avec un manchon isolant adapté est fortement recommandée avant l'hiver.",
+    },
+    {
+      id: 'pn-isol-c-2',
+      sectionIds: ['aibq-v-ix', 'bnq-12-7'],
+      status: 'conforme',
+      title: 'Combles et isolation — performance thermique satisfaisante',
+      text: "Le comble est correctement isolé avec une épaisseur adéquate d'isolant en bon état. La ventilation du comble est assurée par des évents de soffite et de faîte, et aucun signe de condensation ni de moisissure n'a été observé sur la charpente. L'enveloppe thermique supérieure du bâtiment est jugée satisfaisante.",
+    },
 
     // ─────────────────────────────────────────────────────────────────────────────
     // VENTILATION
@@ -4119,6 +4394,34 @@ ${answerLocally(q, ctx)}`;
       status: 'conforme',
       title: 'Ventilation — système fonctionnel et adéquat',
       text: "L'inspection du système de ventilation ne révèle aucune anomalie notable. Les extracteurs de salle de bain et la hotte de cuisine sont évacués vers l'extérieur. Le système de ventilation mécanique contrôlée fonctionne normalement. La qualité de ventilation est jugée satisfaisante.",
+    },
+    {
+      id: 'pn-vent-nc-seche-linge-obstrue',
+      sectionIds: ['aibq-v-x'],
+      status: 'non-conforme',
+      title: "Conduit de sécheuse obstrué — risque d'incendie",
+      text: "Le conduit d'évacuation de la sécheuse est obstrué par une accumulation de peluches ou présente un parcours trop long avec des coudes multiples réduisant le tirage. Un conduit de sécheuse obstrué est l'une des principales causes d'incendie résidentiel au Canada. Un nettoyage professionnel du conduit et une vérification de son installation sont requis.",
+    },
+    {
+      id: 'pn-vent-nc-vmc-absente',
+      sectionIds: ['aibq-v-x'],
+      status: 'non-conforme',
+      title: 'Ventilation mécanique — aucun système de récupération de chaleur',
+      text: "Le bâtiment ne dispose d'aucun système de ventilation mécanique à récupération de chaleur (VRC/VRE). Dans un bâtiment bien étanche, l'absence de ce système peut entraîner une accumulation de polluants intérieurs et d'humidité. L'installation d'un VRC est fortement recommandée, en particulier dans les constructions post-2000 ou rénovées pour améliorer leur étanchéité.",
+    },
+    {
+      id: 'pn-vent-ac-entretien-vrc',
+      sectionIds: ['aibq-v-x'],
+      status: 'a-corriger',
+      title: 'VRC — entretien saisonnier requis',
+      text: "Le ventilateur récupérateur de chaleur (VRC) en place est fonctionnel mais ne semble pas avoir été entretenu depuis un moment. Les filtres et la cassette d'échange doivent être nettoyés deux fois par année pour maintenir l'efficacité du système et prévenir le développement microbien dans les conduits. Un entretien saisonnier est recommandé.",
+    },
+    {
+      id: 'pn-vent-c-2',
+      sectionIds: ['aibq-v-x'],
+      status: 'conforme',
+      title: 'Ventilation — VRC entretenu, extraction fonctionnelle',
+      text: "Le système de ventilation est complet et bien entretenu. Le VRC est récent, propre et fonctionnel lors du test. Les extracteurs de salle de bain et la hotte de cuisine sont évacués directement vers l'extérieur. La ventilation globale du bâtiment est jugée adéquate.",
     },
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -4180,6 +4483,34 @@ ${answerLocally(q, ctx)}`;
       status: 'conforme',
       title: 'Sécurité — dispositifs présents et fonctionnels',
       text: "L'inspection des dispositifs de sécurité révèle la présence de détecteurs de fumée fonctionnels à chaque niveau, d'un détecteur de monoxyde de carbone et de garde-corps en bon état. Les voies d'évacuation sont dégagées et accessibles. L'état général des éléments de sécurité inspecté est satisfaisant.",
+    },
+    {
+      id: 'pn-secu-nc-escalier-sous-sol-non-conforme',
+      sectionIds: ['aibq-v-xi', 'bnq-12-8'],
+      status: 'non-conforme',
+      title: 'Escalier de sous-sol — non-conformité sécuritaire',
+      text: "L'escalier menant au sous-sol présente des irrégularités importantes dans la hauteur des contremarches, une inclinaison excessive, ou l'absence de main courante. Ces conditions augmentent significativement le risque de chute sur une cage d'escalier particulièrement dangereuse en raison du sol dur en bas. Des travaux de correction pour rendre l'escalier conforme au Code de construction sont requis.",
+    },
+    {
+      id: 'pn-secu-nc-detecteur-chaleur-cuisine',
+      sectionIds: ['aibq-v-xi', 'bnq-12-8'],
+      status: 'non-conforme',
+      title: 'Détecteur de chaleur absent en cuisine — sécurité incendie',
+      text: "La cuisine ne dispose pas d'un détecteur de chaleur adapté à cet environnement. Un détecteur de fumée standard dans la cuisine génère fréquemment de fausses alarmes et est souvent désactivé par les occupants. Un détecteur de chaleur à déclenchement fixe ou thermodifférentiel, conçu pour les environnements avec vapeur et fumée de cuisson, est recommandé pour assurer une protection adéquate sans nuisance.",
+    },
+    {
+      id: 'pn-secu-ac-serrures-portes-ext',
+      sectionIds: ['aibq-v-xi', 'bnq-12-8'],
+      status: 'a-corriger',
+      title: 'Serrures des portes extérieures — niveau de sécurité limité',
+      text: "Les serrures des portes extérieures sont de type à bouton ou pène de mauvaise qualité, offrant une résistance limitée aux tentatives d'entrée par effraction. L'installation de serrures à pène dormant de grade 1 ou 2, avec des plaques de renfort d'encadrement, est recommandée pour améliorer la sécurité de l'habitation.",
+    },
+    {
+      id: 'pn-secu-c-2',
+      sectionIds: ['aibq-v-xi', 'bnq-12-8'],
+      status: 'conforme',
+      title: "Sécurité — bonne conformité d'ensemble",
+      text: "L'ensemble des éléments de sécurité inspectés est en bon état. Les détecteurs de fumée et de CO sont présents à tous les niveaux requis et fonctionnent normalement. Les garde-corps et rampes sont stables et à la hauteur réglementaire. Les issues sont facilement accessibles et les serrures sont fonctionnelles. Aucune anomalie de sécurité significative n'a été détectée.",
     },
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -4424,6 +4755,17 @@ ${answerLocally(q, ctx)}`;
     return materiauBlock + groups.map(({ subIndex, title, items, id }) => {
       const itemsHtml = items.map((item, ii) => renderChecklistItem(item, si, subIndex, ii, filter, sec, id)).join("");
       if (!itemsHtml.trim()) return "";
+      const subMatDef = id ? SECTION_MATERIAL_OPTIONS[id] : null;
+      const subSelectedMat = id ? (inspection?.sectionMateriau?.[id] || "") : "";
+      const subMatBlock = subMatDef ? `
+        <div class="section-materiau">
+          <label class="section-materiau__label">${escapeHtml2(subMatDef.label)}</label>
+          <select class="input input--sm section-materiau__select" data-section-materiau="${si}" data-section-id="${escapeHtml2(id)}">
+            <option value="">— S\xE9lectionner —</option>
+            ${subMatDef.options.map((o) => `<option value="${escapeHtml2(o)}" ${subSelectedMat === o ? "selected" : ""}>${escapeHtml2(o)}</option>`).join("")}
+          </select>
+          ${subSelectedMat ? `<span class="section-materiau__badge">${escapeHtml2(subSelectedMat)}</span>` : ""}
+        </div>` : "";
       if (subIndex >= 0 && title) {
         const subProg = itemsProgress(items);
         return `
@@ -4433,10 +4775,11 @@ ${answerLocally(q, ctx)}`;
               <span class="check-subsection__progress">${subProg.answered}/${subProg.total} \xB7 ${subProg.pct}%</span>
               <button type="button" class="btn btn--ghost btn--sm" data-section-na-sub="${si}" data-sub="${subIndex}">Tout N/A</button>
             </div>
+            ${subMatBlock}
             ${itemsHtml}
           </div>`;
       }
-      return itemsHtml;
+      return subMatBlock + itemsHtml;
     }).join("");
   }
   function sectionListRows(i, activeSi) {
@@ -5992,23 +6335,17 @@ ${answerLocally(q, ctx)}`;
       .filter(Boolean).join(", ");
     if (!site.adresse && !site.ville) return "";
     const encoded = encodeURIComponent(addr);
-    const mapsLink = "https://www.google.com/maps?q=" + encoded;
-    const embedUrl = "https://maps.google.com/maps?q=" + encoded + "&output=embed&hl=fr";
+    const mapsLink = "https://www.google.com/maps/search/?api=1&query=" + encoded;
     return `
   <div class="report-location">
     <h2>Localisation du b\xE2timent</h2>
-    <iframe
-      class="report-location__map"
-      src="${embedUrl}"
-      width="100%"
-      height="210"
-      style="border:1px solid #ddd;border-radius:6px;display:block;margin-bottom:4px;"
-      loading="eager"
-      referrerpolicy="no-referrer-when-downgrade"
-    ></iframe>
-    <p style="font-size:8pt;color:#888;margin:0;">
-      <a href="${mapsLink}" style="color:#0d47a1;">${escapeHtml7(addr)}</a>
-    </p>
+    <div style="border:1px solid #ddd;border-radius:6px;padding:14px 16px;background:#f8f9fa;display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:20pt;line-height:1;">&#128205;</span>
+      <div>
+        <p style="margin:0 0 6px 0;font-size:10pt;color:#333;">${escapeHtml7(addr)}</p>
+        <a href="${mapsLink}" style="color:#0d47a1;font-size:9pt;text-decoration:none;font-weight:600;">Ouvrir dans Google Maps &#8594;</a>
+      </div>
+    </div>
   </div>`;
   }
 
@@ -6116,17 +6453,7 @@ ${answerLocally(q, ctx)}`;
     ${paddingHtml}
     ${closingHtml}
     <script>
-    window.onload = function() {
-      var mapIframe = document.querySelector('.report-location__map');
-      if (mapIframe) {
-        var printed = false;
-        var doPrint = function() { if (!printed) { printed = true; window.print(); } };
-        mapIframe.addEventListener('load', doPrint);
-        setTimeout(doPrint, 3000);
-      } else {
-        window.print();
-      }
-    };
+    window.onload = function() { window.print(); };
   </script>
   </body>
   </html>`;
